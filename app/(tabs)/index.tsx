@@ -1,10 +1,8 @@
-import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
@@ -14,9 +12,11 @@ import EventCard from "@/components/EventCard";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useCategories, useEvents } from "@/hooks/useApi";
+import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Category, Event } from "@/types/api";
 
 export default function HomeScreen() {
+  const { GlobalStyles, themedStyles, colors } = useThemedStyles();
   const [preferredLanguage, setPreferredLanguage] = useState<"en" | "sq">("en");
 
   const {
@@ -36,11 +36,13 @@ export default function HomeScreen() {
   } = useCategories();
 
   const handleEventPress = (event: Event) => {
-    router.push(`/event/${event.id}`);
+    // Navigate to event detail - route will be created later
+    console.log("Navigate to event:", event.id);
   };
 
   const handleCategoryPress = (category: Category) => {
-    router.push(`/category/${category.id}`);
+    // Navigate to category detail - route will be created later
+    console.log("Navigate to category:", category.id);
   };
 
   const handleRefresh = async () => {
@@ -72,26 +74,38 @@ export default function HomeScreen() {
   const renderFooter = () => {
     if (!eventsLoading) return null;
     return (
-      <View style={styles.footer}>
-        <ActivityIndicator size="small" color="#FF6B35" />
-        <Text style={styles.loadingText}>Loading more events...</Text>
+      <View
+        style={[GlobalStyles.row, GlobalStyles.center, { padding: 20, gap: 8 }]}
+      >
+        <ActivityIndicator size="small" color={colors.primary} />
+        <Text style={[GlobalStyles.loadingText, themedStyles.textSecondary]}>
+          Loading more events...
+        </Text>
       </View>
     );
   };
 
   if (eventsLoading && !events) {
     return (
-      <ThemedView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6B35" />
-        <ThemedText style={styles.loadingText}>Loading events...</ThemedText>
+      <ThemedView
+        style={[GlobalStyles.loadingContainer, themedStyles.background]}
+      >
+        <ActivityIndicator size="large" color={colors.primary} />
+        <ThemedText
+          style={[GlobalStyles.loadingText, themedStyles.textSecondary]}
+        >
+          Loading events...
+        </ThemedText>
       </ThemedView>
     );
   }
 
   if (eventsError && !events) {
     return (
-      <ThemedView style={styles.errorContainer}>
-        <ThemedText style={styles.errorText}>
+      <ThemedView
+        style={[GlobalStyles.errorContainer, themedStyles.background]}
+      >
+        <ThemedText style={[GlobalStyles.errorText, themedStyles.errorText]}>
           Error loading events: {eventsError}
         </ThemedText>
       </ThemedView>
@@ -99,7 +113,13 @@ export default function HomeScreen() {
   }
 
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView
+      style={[
+        GlobalStyles.container,
+        themedStyles.background,
+        { paddingTop: 20 },
+      ]}
+    >
       <FlatList
         data={events}
         renderItem={renderEventItem}
@@ -108,7 +128,7 @@ export default function HomeScreen() {
           <RefreshControl
             refreshing={eventsLoading}
             onRefresh={handleRefresh}
-            colors={["#FF6B35"]}
+            colors={[colors.primary]}
           />
         }
         onEndReached={handleLoadMore}
@@ -116,18 +136,29 @@ export default function HomeScreen() {
         ListFooterComponent={renderFooter}
         ListHeaderComponent={() => (
           <View>
-            <ThemedView style={styles.headerContainer}>
-              <ThemedText type="title" style={styles.title}>
+            <ThemedView style={GlobalStyles.headerContainer}>
+              <ThemedText
+                type="title"
+                style={[GlobalStyles.headerTitle, themedStyles.text]}
+              >
                 Discover Albania 🇦🇱
               </ThemedText>
-              <ThemedText style={styles.subtitle}>
+              <ThemedText
+                style={[
+                  GlobalStyles.headerSubtitle,
+                  themedStyles.textSecondary,
+                ]}
+              >
                 Explore cultural events and beautiful destinations
               </ThemedText>
             </ThemedView>
 
             {categories && categories.length > 0 && (
-              <ThemedView style={styles.sectionContainer}>
-                <ThemedText type="subtitle" style={styles.sectionTitle}>
+              <ThemedView style={GlobalStyles.sectionContainer}>
+                <ThemedText
+                  type="subtitle"
+                  style={[GlobalStyles.sectionTitle, themedStyles.text]}
+                >
                   Categories
                 </ThemedText>
                 <FlatList
@@ -136,13 +167,16 @@ export default function HomeScreen() {
                   keyExtractor={(item) => item.id.toString()}
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.categoriesContainer}
+                  contentContainerStyle={{ paddingHorizontal: 8 }}
                 />
               </ThemedView>
             )}
 
-            <ThemedView style={styles.sectionContainer}>
-              <ThemedText type="subtitle" style={styles.sectionTitle}>
+            <ThemedView style={GlobalStyles.sectionContainer}>
+              <ThemedText
+                type="subtitle"
+                style={[GlobalStyles.sectionTitle, themedStyles.text]}
+              >
                 Upcoming Events
               </ThemedText>
             </ThemedView>
@@ -152,60 +186,3 @@ export default function HomeScreen() {
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  errorText: {
-    textAlign: "center",
-    color: "#FF6B35",
-  },
-  headerContainer: {
-    padding: 20,
-    alignItems: "center",
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  subtitle: {
-    textAlign: "center",
-    opacity: 0.8,
-  },
-  sectionContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    marginBottom: 12,
-    fontWeight: "600",
-  },
-  categoriesContainer: {
-    paddingHorizontal: 8,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-    gap: 8,
-  },
-  loadingText: {
-    color: "#666",
-    marginTop: 8,
-  },
-});

@@ -1,10 +1,8 @@
-import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
@@ -13,9 +11,16 @@ import BeachCard from "@/components/BeachCard";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useBeaches, useMunicipalities } from "@/hooks/useApi";
+import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Beach } from "@/types/api";
 
+interface GroupedBeaches {
+  municipality: string;
+  beaches: Beach[];
+}
+
 export default function BeachesScreen() {
+  const { GlobalStyles, themedStyles, colors } = useThemedStyles();
   const [preferredLanguage, setPreferredLanguage] = useState<"en" | "sq">("en");
   const [selectedMunicipality, setSelectedMunicipality] = useState<
     number | null
@@ -37,7 +42,8 @@ export default function BeachesScreen() {
   } = useMunicipalities();
 
   const handleBeachPress = (beach: Beach) => {
-    router.push(`/beach/${beach.id}`);
+    // Navigate to beach detail - route will be created later
+    console.log("Navigate to beach:", beach.id);
   };
 
   const handleRefresh = async () => {
@@ -52,22 +58,81 @@ export default function BeachesScreen() {
     />
   );
 
+  const renderBeachGroup = ({ item }: { item: GroupedBeaches }) => (
+    <View style={GlobalStyles.groupContainer}>
+      <ThemedText
+        type="subtitle"
+        style={[GlobalStyles.groupTitle, themedStyles.text]}
+      >
+        {item.municipality} ({item.beaches.length})
+      </ThemedText>
+      <View style={GlobalStyles.grid}>
+        {item.beaches.map((beach) => (
+          <View key={beach.id} style={GlobalStyles.gridItem}>
+            <BeachCard
+              beach={beach}
+              onPress={handleBeachPress}
+              preferredLanguage={preferredLanguage}
+            />
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+
   const beachesWithMunicipalities =
     municipalities?.filter((m) => m.has_beaches) || [];
 
+  // Group beaches by municipality
+  const groupedBeaches: GroupedBeaches[] = React.useMemo(() => {
+    if (!beaches || !municipalities) return [];
+
+    const grouped = beaches.reduce((acc, beach) => {
+      const municipality = municipalities.find(
+        (m) => m.id === beach.municipality.id
+      );
+      const municipalityName = municipality?.name || "Unknown Location";
+
+      const existingGroup = acc.find(
+        (group) => group.municipality === municipalityName
+      );
+
+      if (existingGroup) {
+        existingGroup.beaches.push(beach);
+      } else {
+        acc.push({
+          municipality: municipalityName,
+          beaches: [beach],
+        });
+      }
+
+      return acc;
+    }, [] as GroupedBeaches[]);
+
+    return grouped.sort((a, b) => a.municipality.localeCompare(b.municipality));
+  }, [beaches, municipalities]);
+
   if (beachesLoading && !beaches) {
     return (
-      <ThemedView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
-        <ThemedText style={styles.loadingText}>Loading beaches...</ThemedText>
+      <ThemedView
+        style={[GlobalStyles.loadingContainer, themedStyles.background]}
+      >
+        <ActivityIndicator size="large" color={colors.primary} />
+        <ThemedText
+          style={[GlobalStyles.loadingText, themedStyles.textSecondary]}
+        >
+          Loading beaches...
+        </ThemedText>
       </ThemedView>
     );
   }
 
   if (beachesError && !beaches) {
     return (
-      <ThemedView style={styles.errorContainer}>
-        <ThemedText style={styles.errorText}>
+      <ThemedView
+        style={[GlobalStyles.errorContainer, themedStyles.background]}
+      >
+        <ThemedText style={[GlobalStyles.errorText, themedStyles.errorText]}>
           Error loading beaches: {beachesError}
         </ThemedText>
       </ThemedView>
@@ -75,33 +140,41 @@ export default function BeachesScreen() {
   }
 
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView style={[GlobalStyles.container, themedStyles.background]}>
       <FlatList
-        data={beaches}
-        renderItem={renderBeachItem}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
+        data={groupedBeaches}
+        renderItem={renderBeachGroup}
+        keyExtractor={(item) => item.municipality}
         refreshControl={
           <RefreshControl
             refreshing={beachesLoading}
             onRefresh={handleRefresh}
-            colors={["#4CAF50"]}
+            colors={[colors.primary]}
           />
         }
         ListHeaderComponent={() => (
           <View>
-            <ThemedView style={styles.headerContainer}>
-              <ThemedText type="title" style={styles.title}>
+            <ThemedView style={GlobalStyles.headerContainer}>
+              <ThemedText
+                type="title"
+                style={[GlobalStyles.headerTitle, themedStyles.text]}
+              >
                 Albanian Beaches 🏖️
               </ThemedText>
-              <ThemedText style={styles.subtitle}>
-                Discover the most beautiful beaches along Albania's coast
+              <ThemedText
+                style={[
+                  GlobalStyles.headerSubtitle,
+                  themedStyles.textSecondary,
+                ]}
+              >
+                Discover the most beautiful beaches along Albania&apos;s coast
               </ThemedText>
 
               {beachesWithMunicipalities.length > 0 && (
-                <View style={styles.filterContainer}>
-                  <ThemedText style={styles.filterTitle}>
+                <View style={GlobalStyles.filterContainer}>
+                  <ThemedText
+                    style={[GlobalStyles.filterTitle, themedStyles.text]}
+                  >
                     Filter by Municipality:
                   </ThemedText>
                   <FlatList
@@ -112,10 +185,11 @@ export default function BeachesScreen() {
                     renderItem={({ item }) => (
                       <Text
                         style={[
-                          styles.filterItem,
+                          GlobalStyles.filterItem,
                           selectedMunicipality ===
-                            (item.id === 0 ? null : item.id) &&
-                            styles.filterItemActive,
+                          (item.id === 0 ? null : item.id)
+                            ? themedStyles.filterItemActive
+                            : themedStyles.filterItem,
                         ]}
                         onPress={() =>
                           setSelectedMunicipality(
@@ -129,14 +203,17 @@ export default function BeachesScreen() {
                     keyExtractor={(item) => item.id.toString()}
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.filterList}
+                    contentContainerStyle={GlobalStyles.filterList}
                   />
                 </View>
               )}
             </ThemedView>
 
-            <ThemedView style={styles.sectionContainer}>
-              <ThemedText type="subtitle" style={styles.sectionTitle}>
+            <ThemedView style={GlobalStyles.sectionContainer}>
+              <ThemedText
+                type="subtitle"
+                style={[GlobalStyles.sectionTitle, themedStyles.text]}
+              >
                 {selectedMunicipality
                   ? `Beaches in ${
                       municipalities?.find((m) => m.id === selectedMunicipality)
@@ -148,8 +225,10 @@ export default function BeachesScreen() {
           </View>
         )}
         ListEmptyComponent={() => (
-          <ThemedView style={styles.emptyContainer}>
-            <ThemedText style={styles.emptyText}>
+          <ThemedView style={GlobalStyles.emptyContainer}>
+            <ThemedText
+              style={[GlobalStyles.emptyText, themedStyles.textMuted]}
+            >
               No beaches found for the selected municipality
             </ThemedText>
           </ThemedView>
@@ -158,89 +237,3 @@ export default function BeachesScreen() {
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  errorText: {
-    textAlign: "center",
-    color: "#F44336",
-  },
-  headerContainer: {
-    padding: 20,
-    alignItems: "center",
-  },
-  title: {
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  subtitle: {
-    textAlign: "center",
-    opacity: 0.8,
-    marginBottom: 16,
-  },
-  filterContainer: {
-    width: "100%",
-    marginTop: 16,
-  },
-  filterTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  filterList: {
-    paddingHorizontal: 4,
-  },
-  filterItem: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginHorizontal: 4,
-    backgroundColor: "#E0E0E0",
-    borderRadius: 16,
-    fontSize: 14,
-    textAlign: "center",
-  },
-  filterItemActive: {
-    backgroundColor: "#4CAF50",
-    color: "white",
-  },
-  sectionContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    marginBottom: 12,
-    fontWeight: "600",
-  },
-  row: {
-    justifyContent: "space-around",
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 40,
-  },
-  emptyText: {
-    textAlign: "center",
-    opacity: 0.6,
-    fontSize: 16,
-  },
-  loadingText: {
-    color: "#666",
-    marginTop: 8,
-  },
-});

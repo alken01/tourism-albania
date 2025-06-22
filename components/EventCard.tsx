@@ -1,15 +1,10 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Event } from "@/types/api";
 import { Image } from "expo-image";
 import React from "react";
-import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 
 interface EventCardProps {
   event: Event;
@@ -25,6 +20,9 @@ export default function EventCard({
   onPress,
   preferredLanguage = "en",
 }: EventCardProps) {
+  const { themedStyles, colors, shadows, Spacing, Typography, BorderRadius } =
+    useThemedStyles();
+
   const handlePress = () => {
     onPress?.(event);
   };
@@ -50,43 +48,106 @@ export default function EventCard({
       : event.category.name_en;
   };
 
+  const cardStyles = {
+    container: {
+      width: CARD_WIDTH,
+      marginHorizontal: Spacing.lg,
+      marginVertical: Spacing.sm,
+      borderRadius: BorderRadius.lg,
+      overflow: "hidden" as const,
+      ...shadows.md,
+      ...themedStyles.card,
+    },
+    image: {
+      width: "100%" as const,
+      height: 200,
+    },
+    content: {
+      padding: Spacing.lg,
+    },
+    categoryBadge: {
+      alignSelf: "flex-start" as const,
+      backgroundColor: colors.primary,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: Spacing.xs,
+      borderRadius: Spacing.sm - 2,
+      marginBottom: Spacing.sm,
+    },
+    categoryText: {
+      color: colors.textLight,
+      fontSize: Typography.sizes.xs,
+      fontWeight: Typography.weights.semibold,
+    },
+    title: {
+      fontSize: Typography.sizes.lg,
+      fontWeight: Typography.weights.bold,
+      marginBottom: Spacing.sm,
+      lineHeight: Typography.sizes.lg * Typography.lineHeights.normal,
+    },
+    dateContainer: {
+      flexDirection: "row" as const,
+      justifyContent: "space-between" as const,
+      alignItems: "center" as const,
+      marginBottom: Spacing.sm - 2,
+    },
+    dateText: {
+      fontSize: Typography.sizes.sm,
+      fontWeight: Typography.weights.medium,
+      color: colors.textSecondary,
+    },
+    timeText: {
+      fontSize: Typography.sizes.xs,
+      color: colors.textMuted,
+    },
+    locationContainer: {
+      marginTop: Spacing.xs,
+    },
+    locationText: {
+      fontSize: Typography.sizes.sm,
+      color: colors.textSecondary,
+    },
+  };
+
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
-      <ThemedView style={styles.container}>
+      <ThemedView style={cardStyles.container}>
         {event.photo_urls && event.photo_urls.length > 0 && (
           <Image
             source={{ uri: event.photo_urls[0] }}
-            style={styles.image}
+            style={cardStyles.image}
             contentFit="cover"
             transition={200}
           />
         )}
 
-        <View style={styles.content}>
-          <View style={styles.categoryBadge}>
-            <Text style={styles.categoryText}>{getCategoryName()}</Text>
+        <View style={cardStyles.content}>
+          <View style={cardStyles.categoryBadge}>
+            <Text style={cardStyles.categoryText}>{getCategoryName()}</Text>
           </View>
 
-          <ThemedText style={styles.title} numberOfLines={2}>
+          <ThemedText
+            style={[cardStyles.title, themedStyles.text]}
+            numberOfLines={2}
+          >
             {getEventName()}
           </ThemedText>
 
-          <View style={styles.dateContainer}>
-            <ThemedText style={styles.dateText}>
+          <View style={cardStyles.dateContainer}>
+            <ThemedText style={cardStyles.dateText}>
               {formatDate(event.from_date)}
               {event.from_date !== event.to_date &&
                 ` - ${formatDate(event.to_date)}`}
             </ThemedText>
 
             {event.event_hours && event.event_hours !== "N/A" && (
-              <ThemedText style={styles.timeText}>
+              <ThemedText style={cardStyles.timeText}>
                 🕒 {event.event_hours}
               </ThemedText>
             )}
           </View>
 
-          <View style={styles.locationContainer}>
-            <ThemedText style={styles.locationText}>
+          <View style={cardStyles.locationContainer}>
+            <ThemedText style={cardStyles.locationText}>
               📍 {event.municipality.name}
             </ThemedText>
           </View>
@@ -95,69 +156,3 @@ export default function EventCard({
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: CARD_WIDTH,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    borderRadius: 12,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    overflow: "hidden",
-  },
-  image: {
-    width: "100%",
-    height: 200,
-  },
-  content: {
-    padding: 16,
-  },
-  categoryBadge: {
-    alignSelf: "flex-start",
-    backgroundColor: "#FF6B35",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    marginBottom: 8,
-  },
-  categoryText: {
-    color: "white",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 8,
-    lineHeight: 24,
-  },
-  dateContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 6,
-  },
-  dateText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#666",
-  },
-  timeText: {
-    fontSize: 12,
-    color: "#888",
-  },
-  locationContainer: {
-    marginTop: 4,
-  },
-  locationText: {
-    fontSize: 14,
-    color: "#666",
-  },
-});

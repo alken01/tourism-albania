@@ -1,15 +1,10 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Beach } from "@/types/api";
 import { Image } from "expo-image";
 import React from "react";
-import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 
 interface BeachCardProps {
   beach: Beach;
@@ -27,6 +22,16 @@ export default function BeachCard({
   preferredLanguage = "en",
   showLocation = true,
 }: BeachCardProps) {
+  const {
+    GlobalStyles,
+    themedStyles,
+    colors,
+    shadows,
+    Spacing,
+    Typography,
+    BorderRadius,
+  } = useThemedStyles();
+
   const handlePress = () => {
     onPress?.(beach);
   };
@@ -46,59 +51,128 @@ export default function BeachCard({
   const getTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
       case "publike":
-        return "#4CAF50";
+        return colors.success;
       case "kontrate":
-        return "#FF9800";
+        return colors.warning;
       case "e menaxhuar":
-        return "#2196F3";
+        return colors.info;
       default:
-        return "#757575";
+        return colors.textMuted;
     }
+  };
+
+  const cardStyles = {
+    container: {
+      width: CARD_WIDTH,
+      marginHorizontal: Spacing.sm,
+      marginVertical: Spacing.sm,
+      borderRadius: BorderRadius.lg,
+      overflow: "hidden" as const,
+      ...shadows.md,
+      ...themedStyles.card,
+    },
+    image: {
+      width: "100%" as const,
+      height: 120,
+    },
+    content: {
+      padding: Spacing.md,
+    },
+    header: {
+      flexDirection: "row" as const,
+      justifyContent: "space-between" as const,
+      alignItems: "center" as const,
+      marginBottom: Spacing.sm,
+    },
+    typeBadge: {
+      paddingHorizontal: Spacing.sm - 2,
+      paddingVertical: Spacing.xs - 1,
+      borderRadius: BorderRadius.xs,
+    },
+    typeText: {
+      color: colors.textLight,
+      fontSize: Typography.sizes.xs,
+      fontWeight: Typography.weights.semibold,
+      textTransform: "uppercase" as const,
+    },
+    publicBadge: {
+      backgroundColor: colors.success,
+      paddingHorizontal: Spacing.sm - 2,
+      paddingVertical: Spacing.xs - 1,
+      borderRadius: BorderRadius.xs,
+    },
+    publicText: {
+      color: colors.textLight,
+      fontSize: Typography.sizes.xs,
+      fontWeight: Typography.weights.semibold,
+    },
+    title: {
+      fontSize: Typography.sizes.sm,
+      fontWeight: Typography.weights.bold,
+      marginBottom: Spacing.sm - 2,
+      lineHeight: Typography.sizes.sm * Typography.lineHeights.tight,
+    },
+    locationContainer: {
+      marginBottom: Spacing.sm - 2,
+    },
+    locationText: {
+      fontSize: Typography.sizes.xs,
+      color: colors.textSecondary,
+    },
+    description: {
+      fontSize: Typography.sizes.xs - 1,
+      color: colors.textMuted,
+      lineHeight: Typography.sizes.xs * Typography.lineHeights.normal,
+      marginBottom: Spacing.sm,
+    },
   };
 
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
-      <ThemedView style={styles.container}>
+      <ThemedView style={cardStyles.container}>
         {beach.photo_urls && beach.photo_urls.length > 0 && (
           <Image
             source={{ uri: beach.photo_urls[0] }}
-            style={styles.image}
+            style={cardStyles.image}
             contentFit="cover"
             transition={200}
           />
         )}
 
-        <View style={styles.content}>
-          <View style={styles.header}>
+        <View style={cardStyles.content}>
+          <View style={cardStyles.header}>
             <View
               style={[
-                styles.typeBadge,
+                cardStyles.typeBadge,
                 { backgroundColor: getTypeColor(beach.type) },
               ]}
             >
-              <Text style={styles.typeText}>{beach.type}</Text>
+              <Text style={cardStyles.typeText}>{beach.type}</Text>
             </View>
 
             {beach.is_public && (
-              <View style={styles.publicBadge}>
-                <Text style={styles.publicText}>PUBLIC</Text>
+              <View style={cardStyles.publicBadge}>
+                <Text style={cardStyles.publicText}>PUBLIC</Text>
               </View>
             )}
           </View>
 
-          <ThemedText style={styles.title} numberOfLines={2}>
+          <ThemedText
+            style={[cardStyles.title, themedStyles.text]}
+            numberOfLines={2}
+          >
             {getBeachName()}
           </ThemedText>
 
           {showLocation && (
-            <View style={styles.locationContainer}>
-              <ThemedText style={styles.locationText}>
+            <View style={cardStyles.locationContainer}>
+              <ThemedText style={cardStyles.locationText}>
                 📍 {beach.municipality.name}
               </ThemedText>
             </View>
           )}
 
-          <ThemedText style={styles.description} numberOfLines={3}>
+          <ThemedText style={cardStyles.description} numberOfLines={3}>
             {getBeachDescription()}
           </ThemedText>
         </View>
@@ -106,82 +180,3 @@ export default function BeachCard({
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: CARD_WIDTH,
-    marginHorizontal: 8,
-    marginVertical: 8,
-    borderRadius: 12,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    overflow: "hidden",
-  },
-  image: {
-    width: "100%",
-    height: 120,
-  },
-  content: {
-    padding: 12,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  typeBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 4,
-  },
-  typeText: {
-    color: "white",
-    fontSize: 10,
-    fontWeight: "600",
-    textTransform: "uppercase",
-  },
-  publicBadge: {
-    backgroundColor: "#4CAF50",
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 4,
-  },
-  publicText: {
-    color: "white",
-    fontSize: 10,
-    fontWeight: "600",
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: "bold",
-    marginBottom: 6,
-    lineHeight: 18,
-  },
-  locationContainer: {
-    marginBottom: 6,
-  },
-  locationText: {
-    fontSize: 12,
-    color: "#666",
-  },
-  description: {
-    fontSize: 11,
-    color: "#777",
-    lineHeight: 15,
-    marginBottom: 8,
-  },
-  detailsContainer: {
-    gap: 2,
-  },
-  detailText: {
-    fontSize: 10,
-    color: "#888",
-  },
-});

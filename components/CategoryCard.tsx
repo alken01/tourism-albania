@@ -1,9 +1,10 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Category } from "@/types/api";
 import { Image } from "expo-image";
 import React from "react";
-import { Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Dimensions, TouchableOpacity, View } from "react-native";
 
 interface CategoryCardProps {
   category: Category;
@@ -19,6 +20,9 @@ export default function CategoryCard({
   onPress,
   preferredLanguage = "en",
 }: CategoryCardProps) {
+  const { themedStyles, colors, shadows, Spacing, Typography, BorderRadius } =
+    useThemedStyles();
+
   const handlePress = () => {
     onPress?.(category);
   };
@@ -27,20 +31,54 @@ export default function CategoryCard({
     return preferredLanguage === "sq" ? category.name_sq : category.name_en;
   };
 
+  const cardStyles = {
+    container: {
+      width: CARD_WIDTH,
+      height: 120,
+      marginHorizontal: Spacing.sm,
+      marginVertical: Spacing.sm,
+      borderRadius: BorderRadius.lg,
+      overflow: "hidden" as const,
+      position: "relative" as const,
+      ...shadows.md,
+      ...themedStyles.card,
+    },
+    image: {
+      width: "100%" as const,
+      height: "100%" as const,
+    },
+    overlay: {
+      position: "absolute" as const,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: colors.overlay,
+      padding: Spacing.md,
+      justifyContent: "center" as const,
+    },
+    title: {
+      fontSize: Typography.sizes.md,
+      fontWeight: Typography.weights.bold,
+      color: colors.textLight,
+      textAlign: "center" as const,
+      lineHeight: Typography.sizes.md * Typography.lineHeights.normal,
+    },
+  };
+
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
-      <ThemedView style={styles.container}>
+      <ThemedView style={cardStyles.container}>
         {category.photo && (
           <Image
             source={{ uri: category.photo }}
-            style={styles.image}
+            style={cardStyles.image}
             contentFit="cover"
             transition={200}
           />
         )}
 
-        <View style={styles.overlay}>
-          <ThemedText style={styles.title} numberOfLines={2}>
+        <View style={cardStyles.overlay}>
+          <ThemedText style={cardStyles.title} numberOfLines={2}>
             {getCategoryName()}
           </ThemedText>
         </View>
@@ -48,43 +86,3 @@ export default function CategoryCard({
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: CARD_WIDTH,
-    height: 120,
-    marginHorizontal: 8,
-    marginVertical: 8,
-    borderRadius: 12,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    overflow: "hidden",
-    position: "relative",
-  },
-  image: {
-    width: "100%",
-    height: "100%",
-  },
-  overlay: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    padding: 12,
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "white",
-    textAlign: "center",
-    lineHeight: 20,
-  },
-});
