@@ -42,7 +42,7 @@ export default function BeachesMap({ beaches, onBeachPress }: BeachesMapProps) {
     },
     map: {
       width,
-      height: height - 180, // Account for tab bar and header
+      height, // Full screen height
     },
     markerContainer: {
       backgroundColor: colors.primary,

@@ -7,17 +7,7 @@ export default function BeachesLayout() {
 
   return (
     <Stack>
-      <Stack.Screen
-        name="index"
-        options={{
-
-          headerStyle: {
-            backgroundColor: "transparent",
-          },
-          headerBlurEffect: "regular",
-          headerShadowVisible: false,
-        }}
-      />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
     </Stack>
   );
 }
