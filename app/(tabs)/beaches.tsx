@@ -41,8 +41,8 @@ export default function BeachesScreen() {
   } = useMunicipalities();
 
   const handleBeachPress = (beach: Beach) => {
-    // Navigate to beach detail - route will be created later
-    console.log("Navigate to beach:", beach.id);
+    // Navigation is now handled by BeachCard component
+    console.log("Beach selected:", beach.name_en);
   };
 
   const handleRefresh = async () => {

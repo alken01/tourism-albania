@@ -4,6 +4,7 @@ import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Beach } from "@/types/api";
 import { Image } from "expo-image";
+import { router } from "expo-router";
 import React from "react";
 import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 
@@ -34,6 +35,9 @@ export default function BeachCard({
   const getLocalizedField = useLocalizedField();
 
   const handlePress = () => {
+    // Navigate to beach detail page
+    router.push(`/beach/${beach.id}`);
+    // Also call the optional onPress callback
     onPress?.(beach);
   };
 

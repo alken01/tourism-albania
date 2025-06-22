@@ -102,8 +102,8 @@ export const apiService = {
     return fetchApi<Beach[]>("/beaches", params);
   },
 
-  async getBeachById(id: number): Promise<Beach> {
-    return fetchApi<Beach>(`/beaches/${id}`);
+  async getBeachById(id: number): Promise<DetailedBeach> {
+    return fetchApi<DetailedBeach>(`/beaches/${id}`);
   },
 
   // Utility functions for filtered data

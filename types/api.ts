@@ -60,6 +60,39 @@ export interface Beach {
   photo_urls: string[];
 }
 
+// Place Category for nearby places
+export interface PlaceCategory {
+  id: number;
+  name_en: string;
+  name_sq: string;
+  created_at: string;
+  updated_at: string;
+  sort_order: number;
+}
+
+// Individual place/recommendation
+export interface Place {
+  id: number;
+  name_en: string;
+  name_sq: string;
+  latitude: string;
+  longitude: string;
+  featured: boolean | null;
+  distance: number;
+  photo_url: string;
+}
+
+// Grouped places by category
+export interface NearbyPlaceGroup {
+  category: PlaceCategory;
+  places: Place[];
+}
+
+// Detailed beach response with nearby places
+export interface DetailedBeach extends Beach {
+  nearby_places: NearbyPlaceGroup[];
+}
+
 // API Error Response (defined as class in services/api.ts)
 
 // API Query Parameters
