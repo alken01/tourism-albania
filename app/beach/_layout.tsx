@@ -8,6 +8,8 @@ export default function BeachLayout() {
         options={{
           headerShown: false,
           presentation: "fullScreenModal",
+          headerTitle: "",
+          headerBackTitle: "",
         }}
       />
     </Stack>

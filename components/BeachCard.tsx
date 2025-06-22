@@ -1,5 +1,6 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { Spacing } from "@/constants/GlobalStyles";
 import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Beach } from "@/types/api";
@@ -15,22 +16,15 @@ interface BeachCardProps {
 }
 
 const { width } = Dimensions.get("window");
-const CARD_WIDTH = (width - 48) / 2; // Two cards per row with margins
+const CARD_WIDTH = (width - Spacing.lg) / 2;
 
 export default function BeachCard({
   beach,
   onPress,
   showLocation = true,
 }: BeachCardProps) {
-  const {
-    GlobalStyles,
-    themedStyles,
-    colors,
-    shadows,
-    Spacing,
-    Typography,
-    BorderRadius,
-  } = useThemedStyles();
+  const { themedStyles, colors, shadows, Spacing, Typography, BorderRadius } =
+    useThemedStyles();
 
   const getLocalizedField = useLocalizedField();
 
@@ -50,19 +44,6 @@ export default function BeachCard({
     return description.length > 100
       ? description.substring(0, 100) + "..."
       : description;
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type.toLowerCase()) {
-      case "publike":
-        return colors.success;
-      case "kontrate":
-        return colors.warning;
-      case "e menaxhuar":
-        return colors.info;
-      default:
-        return colors.textMuted;
-    }
   };
 
   const cardStyles = {
@@ -93,17 +74,6 @@ export default function BeachCard({
     },
     placeholderText: {
       fontSize: 48,
-    },
-    badgeContainer: {
-      position: "absolute" as const,
-      top: Spacing.sm,
-      right: Spacing.sm,
-      zIndex: 1,
-    },
-    typeBadge: {
-      paddingHorizontal: Spacing.sm - 2,
-      paddingVertical: Spacing.xs - 1,
-      borderRadius: BorderRadius.xs,
     },
     typeText: {
       color: colors.textLight,
@@ -176,21 +146,6 @@ export default function BeachCard({
             </View>
           )}
 
-          {/* Gradient overlay for subtle blur fade effect */}
-          {/* <LinearGradient
-            colors={[
-              "transparent",
-              "rgba(255, 255, 255, 0.2)",
-              "rgba(255, 255, 255, 0.4)",
-            ]}
-            locations={[0, 0.1, 0.2]}
-            style={cardStyles.blurOverlay}
-          /> */}
-
-          {/* Blur overlay at bottom */}
-          {/* <BlurView intensity={15} style={cardStyles.blurOverlay} /> */}
-
-          {/* Beach name positioned bottom left */}
           <View style={cardStyles.imageTitleContainer}>
             <Text style={cardStyles.imageTitle} numberOfLines={2}>
               {getBeachName()}
