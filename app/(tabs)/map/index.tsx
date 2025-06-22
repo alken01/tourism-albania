@@ -53,14 +53,12 @@ export default function MapIndex() {
   }
 
   return (
-    <ThemedView style={{ flex: 1, ...themedStyles.background }}>
-      <BeachesMap
-        beaches={beaches || []}
-        onBeachPress={handleBeachPress}
-        focusBeachId={params.focusBeachId as string}
-        focusLatitude={params.latitude as string}
-        focusLongitude={params.longitude as string}
-      />
-    </ThemedView>
+    <BeachesMap
+      beaches={beaches || []}
+      onBeachPress={handleBeachPress}
+      focusBeachId={params.focusBeachId as string}
+      focusLatitude={params.latitude as string}
+      focusLongitude={params.longitude as string}
+    />
   );
 }

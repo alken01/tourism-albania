@@ -87,13 +87,11 @@ export default function BeachesIndex() {
   }
 
   return (
-    <ThemedView style={{ flex: 1, ...themedStyles.background }}>
-      <BeachesList
-        groupedBeaches={groupedBeaches}
-        onBeachPress={handleBeachPress}
-        onRefresh={handleRefresh}
-        isLoading={beachesLoading}
-      />
-    </ThemedView>
+    <BeachesList
+      groupedBeaches={groupedBeaches}
+      onBeachPress={handleBeachPress}
+      onRefresh={handleRefresh}
+      isLoading={beachesLoading}
+    />
   );
 }
