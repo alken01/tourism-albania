@@ -128,7 +128,7 @@ export default function BeachCard({
   };
 
   return (
-    <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
+    <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
       <ThemedView style={cardStyles.container}>
         {beach.photo_urls && beach.photo_urls.length > 0 && (
           <Image
@@ -149,12 +149,6 @@ export default function BeachCard({
             >
               <Text style={cardStyles.typeText}>{beach.type}</Text>
             </View>
-
-            {beach.is_public && (
-              <View style={cardStyles.publicBadge}>
-                <Text style={cardStyles.publicText}>PUBLIC</Text>
-              </View>
-            )}
           </View>
 
           <ThemedText
