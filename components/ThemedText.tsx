@@ -1,3 +1,4 @@
+import { BorderRadius, Spacing } from "@/constants/GlobalStyles";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Text, type TextProps } from "react-native";
@@ -5,7 +6,13 @@ import { Text, type TextProps } from "react-native";
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: "default" | "title" | "defaultSemiBold" | "subtitle" | "link";
+  type?:
+    | "default"
+    | "title"
+    | "defaultSemiBold"
+    | "subtitle"
+    | "link"
+    | "badge";
 };
 
 export function ThemedText({
@@ -43,6 +50,16 @@ export function ThemedText({
           lineHeight: Typography.sizes.md * Typography.lineHeights.loose,
           fontSize: Typography.sizes.md,
           color: colors.secondary,
+        };
+      case "badge":
+        return {
+          fontSize: Typography.sizes.xs,
+          fontWeight: Typography.weights.light,
+          color: colors.primary,
+          backgroundColor: colors.primary + "20",
+          paddingHorizontal: Spacing.xs,
+          paddingVertical: Spacing.xs,
+          borderRadius: BorderRadius.sm,
         };
       case "default":
       default:

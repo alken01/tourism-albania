@@ -2,17 +2,11 @@ import React from "react";
 import { FlatList, Platform, RefreshControl } from "react-native";
 
 import BeachGroup from "@/components/BeachGroup";
-import BeachesHeader from "@/components/BeachesHeader";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { Spacing } from "@/constants/GlobalStyles";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Beach } from "@/types/api";
-
-interface Municipality {
-  id: number;
-  name: string;
-  has_beaches?: boolean;
-}
 
 interface GroupedBeaches {
   municipality: string;
@@ -21,24 +15,16 @@ interface GroupedBeaches {
 
 interface BeachesListProps {
   groupedBeaches: GroupedBeaches[];
-  municipalities: Municipality[];
-  selectedMunicipality: number | null;
-  onMunicipalitySelect: (municipalityId: number | null) => void;
   onBeachPress: (beach: Beach) => void;
   onRefresh: () => Promise<void>;
   isLoading: boolean;
-  totalBeachesCount: number;
 }
 
 export default function BeachesList({
   groupedBeaches,
-  municipalities,
-  selectedMunicipality,
-  onMunicipalitySelect,
   onBeachPress,
   onRefresh,
   isLoading,
-  totalBeachesCount,
 }: BeachesListProps) {
   const { GlobalStyles, themedStyles, colors } = useThemedStyles();
 
@@ -65,14 +51,6 @@ export default function BeachesList({
           tintColor={colors.primary}
         />
       }
-      ListHeaderComponent={() => (
-        <BeachesHeader
-          municipalities={municipalities}
-          selectedMunicipality={selectedMunicipality}
-          onMunicipalitySelect={onMunicipalitySelect}
-          totalBeachesCount={totalBeachesCount}
-        />
-      )}
       ListEmptyComponent={() => (
         <ThemedView style={GlobalStyles.emptyContainer}>
           <ThemedText style={[GlobalStyles.emptyText, themedStyles.textMuted]}>
@@ -80,9 +58,9 @@ export default function BeachesList({
           </ThemedText>
         </ThemedView>
       )}
-      showsVerticalScrollIndicator={true}
+      showsVerticalScrollIndicator={false}
       contentContainerStyle={{
-        paddingBottom: Platform.OS === "ios" ? 90 : 60, // Account for tab bar
+        paddingBottom: Platform.OS === "ios" ? Spacing.xxxl : Spacing.xxl, // Account for tab bar
       }}
     />
   );

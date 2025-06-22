@@ -3,6 +3,7 @@ import { FlatList, View } from "react-native";
 
 import BeachCard from "@/components/BeachCard";
 import { ThemedText } from "@/components/ThemedText";
+import { Spacing } from "@/constants/GlobalStyles";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Beach } from "@/types/api";
 
@@ -17,24 +18,37 @@ export default function BeachGroup({
   beaches,
   onBeachPress,
 }: BeachGroupProps) {
-  const { GlobalStyles, themedStyles } = useThemedStyles();
+  const { GlobalStyles } = useThemedStyles();
 
   return (
     <View style={GlobalStyles.groupContainer}>
-      <ThemedText
-        type="subtitle"
-        style={[GlobalStyles.groupTitle, themedStyles.text]}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingHorizontal: Spacing.lg,
+        }}
       >
-        {municipality} ({beaches.length})
-      </ThemedText>
+        <ThemedText type="subtitle">{municipality}</ThemedText>
+        <ThemedText type="badge">{beaches.length}</ThemedText>
+      </View>
       <FlatList
         data={beaches}
         renderItem={({ item: beach }) => (
-          <BeachCard beach={beach} onPress={onBeachPress} />
+          <BeachCard
+            beach={beach}
+            onPress={onBeachPress}
+            showLocation={false}
+          />
         )}
         keyExtractor={(beach) => beach.id.toString()}
         horizontal
         showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingLeft: Spacing.sm,
+          paddingRight: Spacing.sm,
+        }}
       />
     </View>
   );

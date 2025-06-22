@@ -1,5 +1,4 @@
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
 import { Spacing } from "@/constants/GlobalStyles";
 import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
@@ -36,13 +35,14 @@ export default function BeachCard({
   };
 
   const getBeachName = () => {
-    return getLocalizedField(beach, "name");
+    const name = beach.name_en;
+    return name.replace(/beach|beach of/gi, "").trim();
   };
 
   const getBeachDescription = () => {
     const description = getLocalizedField(beach, "description");
-    return description.length > 100
-      ? description.substring(0, 100) + "..."
+    return description.length > 80
+      ? description.substring(0, 80) + "..."
       : description;
   };
 
@@ -59,15 +59,15 @@ export default function BeachCard({
     imageContainer: {
       position: "relative" as const,
       width: "100%" as const,
-      height: 120,
+      height: 160,
     },
     image: {
       width: "100%" as const,
-      height: 120,
+      height: 160,
     },
     placeholderImage: {
       width: "100%" as const,
-      height: 120,
+      height: 160,
       backgroundColor: colors.blue,
       justifyContent: "center" as const,
       alignItems: "center" as const,
@@ -75,63 +75,96 @@ export default function BeachCard({
     placeholderText: {
       fontSize: 48,
     },
-    typeText: {
-      color: colors.textLight,
-      fontSize: Typography.sizes.xs,
-      fontWeight: Typography.weights.semibold,
-      textTransform: "uppercase" as const,
-    },
-    blurOverlay: {
+    // Multi-layer blur overlay effect
+    blurOverlay1: {
       position: "absolute" as const,
       bottom: 0,
       left: 0,
       right: 0,
-      height: 80,
+      height: "75%" as const,
+      backgroundColor: "rgba(0, 0, 0, 0.1)",
     },
-    darkOverlay: {
+    blurOverlay2: {
       position: "absolute" as const,
       bottom: 0,
       left: 0,
       right: 0,
-      height: 40,
+      height: "65%" as const,
+      backgroundColor: "rgba(0, 0, 0, 0.15)",
+    },
+    blurOverlay3: {
+      position: "absolute" as const,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: "55%" as const,
+      backgroundColor: "rgba(0, 0, 0, 0.2)",
+    },
+    blurOverlay4: {
+      position: "absolute" as const,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: "45%" as const,
+      backgroundColor: "rgba(0, 0, 0, 0.25)",
+    },
+    blurOverlay5: {
+      position: "absolute" as const,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: "35%" as const,
       backgroundColor: "rgba(0, 0, 0, 0.3)",
     },
-    imageTitleContainer: {
+    blurOverlay6: {
       position: "absolute" as const,
-      bottom: Spacing.sm,
-      left: Spacing.sm,
-      right: Spacing.sm,
-      zIndex: 2,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: "25%" as const,
+      backgroundColor: "rgba(0, 0, 0, 0.4)",
     },
-    imageTitle: {
-      color: colors.textLight,
-      fontSize: Typography.sizes.sm,
-      fontWeight: Typography.weights.bold,
-      textShadowColor: "rgba(0, 0, 0, 0.5)",
-      textShadowOffset: { width: 0, height: 1 },
-      textShadowRadius: 2,
-    },
-    content: {
+    contentOverlay: {
+      position: "absolute" as const,
+      bottom: 0,
+      left: 0,
+      right: 0,
       padding: Spacing.md,
+      paddingTop: Spacing.lg,
+    },
+    titleContainer: {
+      marginBottom: Spacing.xs,
+    },
+    titleText: {
+      color: "#FFFFFF",
+      fontSize: Typography.sizes.md,
+      fontWeight: Typography.weights.bold as any,
+      lineHeight: Typography.sizes.md * 1.2,
     },
     locationContainer: {
-      marginBottom: Spacing.sm - 2,
+      marginBottom: Spacing.xs,
     },
     locationText: {
+      color: "#FFFFFF",
       fontSize: Typography.sizes.xs,
-      color: colors.textSecondary,
+      fontWeight: Typography.weights.medium as any,
+      opacity: 0.95,
+    },
+    descriptionContainer: {
+      marginTop: Spacing.xs,
     },
     description: {
-      fontSize: Typography.sizes.xs - 1,
-      color: colors.textMuted,
-      lineHeight: Typography.sizes.xs * Typography.lineHeights.normal,
-      marginBottom: Spacing.sm,
+      color: "#FFFFFF",
+      fontSize: Typography.sizes.xs,
+      fontWeight: Typography.weights.regular as any,
+      lineHeight: Typography.sizes.xs * 1.4,
+      opacity: 0.9,
     },
   };
 
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
-      <ThemedView style={cardStyles.container}>
+      <View style={cardStyles.container}>
         <View style={cardStyles.imageContainer}>
           {beach.photo_urls && beach.photo_urls.length > 0 ? (
             <Image
@@ -146,27 +179,36 @@ export default function BeachCard({
             </View>
           )}
 
-          <View style={cardStyles.imageTitleContainer}>
-            <Text style={cardStyles.imageTitle} numberOfLines={2}>
-              {getBeachName()}
-            </Text>
-          </View>
-        </View>
+          <View style={cardStyles.blurOverlay1} />
+          <View style={cardStyles.blurOverlay2} />
+          <View style={cardStyles.blurOverlay3} />
+          <View style={cardStyles.blurOverlay4} />
+          <View style={cardStyles.blurOverlay5} />
+          <View style={cardStyles.blurOverlay6} />
 
-        <View style={cardStyles.content}>
-          {showLocation && (
-            <View style={cardStyles.locationContainer}>
-              <ThemedText style={cardStyles.locationText}>
-                📍 {beach.municipality.name}
+          <View style={cardStyles.contentOverlay}>
+            <View style={cardStyles.titleContainer}>
+              <ThemedText type="title" style={cardStyles.titleText}>
+                {getBeachName()}
               </ThemedText>
             </View>
-          )}
 
-          <ThemedText style={cardStyles.description} numberOfLines={3}>
-            {getBeachDescription()}
-          </ThemedText>
+            {showLocation && (
+              <View style={cardStyles.locationContainer}>
+                <ThemedText style={cardStyles.locationText}>
+                  📍 {beach.municipality.name}
+                </ThemedText>
+              </View>
+            )}
+
+            <View style={cardStyles.descriptionContainer}>
+              <ThemedText style={cardStyles.description} numberOfLines={2}>
+                {getBeachDescription()}
+              </ThemedText>
+            </View>
+          </View>
         </View>
-      </ThemedView>
+      </View>
     </TouchableOpacity>
   );
 }

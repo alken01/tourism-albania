@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 export const AppColors = {
   light: {
     // Primary colors
-    primary: "#4CAF50",
+    primary: "#4A90E2",
     primaryDark: "#2E7D32",
     primaryLight: "#81C784",
 
@@ -117,6 +117,8 @@ export const Spacing = {
 // Typography
 export const Typography = {
   sizes: {
+    xxxxs: 8,
+    xxs: 10,
     xs: 12,
     sm: 14,
     md: 16,
@@ -152,6 +154,15 @@ export const BorderRadius = {
   xl: 16,
   xxl: 20,
   full: 9999,
+};
+
+// Border width
+export const BorderWidth = {
+  xs: 1,
+  sm: 2,
+  md: 4,
+  lg: 6,
+  xl: 8,
 };
 
 // Shadows
@@ -233,10 +244,8 @@ export const GlobalStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
-  // Header styles
   headerContainer: {
-    padding: Spacing.xl,
+    paddingBottom: Spacing.md,
     alignItems: "center",
   },
   headerTitle: {
@@ -379,7 +388,7 @@ export const GlobalStyles = StyleSheet.create({
   // Group styles (for grouped lists)
   groupContainer: {
     marginBottom: Spacing.xxl,
-    paddingHorizontal: Spacing.lg,
+    // paddingHorizontal: Spacing.lg,
   },
   groupTitle: {
     fontSize: Typography.sizes.lg,

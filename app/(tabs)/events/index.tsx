@@ -125,14 +125,6 @@ export default function HomeScreen() {
       ListFooterComponent={renderFooter}
       ListHeaderComponent={() => (
         <View>
-          <ThemedView style={GlobalStyles.headerContainer}>
-            <ThemedText
-              style={[GlobalStyles.headerSubtitle, themedStyles.textSecondary]}
-            >
-              Explore cultural events and beautiful destinations
-            </ThemedText>
-          </ThemedView>
-
           {categories && categories.length > 0 && (
             <ThemedView style={GlobalStyles.sectionContainer}>
               <ThemedText

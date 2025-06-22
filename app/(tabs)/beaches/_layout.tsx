@@ -16,6 +16,7 @@ export default function BeachesLayout() {
             backgroundColor: "transparent",
           },
           headerBlurEffect: "regular",
+          headerShadowVisible: false,
         }}
       />
     </Stack>

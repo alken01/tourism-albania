@@ -76,7 +76,11 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
 
 const LANGUAGE_STORAGE_KEY = "@tourism_albania_language";
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
+export function LanguageProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element {
   const [language, setLanguageState] = useState<Language>("en");
 
   useEffect(() => {

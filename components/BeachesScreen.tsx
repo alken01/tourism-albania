@@ -1,10 +1,10 @@
 import BeachesList from "@/components/BeachesList";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useBeaches, useMunicipalities } from "@/hooks/useApi";
+import { useBeaches } from "@/hooks/useApi";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Beach } from "@/types/api";
-import React, { useState } from "react";
+import React from "react";
 import { ActivityIndicator } from "react-native";
 
 export interface GroupedBeaches {
@@ -14,24 +14,13 @@ export interface GroupedBeaches {
 
 export default function BeachesScreen() {
   const { GlobalStyles, themedStyles, colors } = useThemedStyles();
-  const [selectedMunicipality, setSelectedMunicipality] = useState<
-    number | null
-  >(null);
 
   const {
     data: beaches,
     loading: beachesLoading,
     error: beachesError,
     refetch: refetchBeaches,
-  } = useBeaches(
-    selectedMunicipality ? { municipality_id: selectedMunicipality } : undefined
-  );
-
-  const {
-    data: municipalities,
-    loading: municipalitiesLoading,
-    error: municipalitiesError,
-  } = useMunicipalities();
+  } = useBeaches();
 
   const handleBeachPress = (beach: Beach) => {
     // Navigation is now handled by BeachCard component
@@ -42,19 +31,12 @@ export default function BeachesScreen() {
     await refetchBeaches();
   };
 
-  const handleMunicipalitySelect = (municipalityId: number | null) => {
-    setSelectedMunicipality(municipalityId);
-  };
-
   // Group beaches by municipality
   const groupedBeaches: GroupedBeaches[] = React.useMemo(() => {
-    if (!beaches || !municipalities) return [];
+    if (!beaches) return [];
 
     const grouped = beaches.reduce((acc, beach) => {
-      const municipality = municipalities.find(
-        (m) => m.id === beach.municipality.id
-      );
-      const municipalityName = municipality?.name || "Unknown Location";
+      const municipalityName = beach.municipality.name;
 
       const existingGroup = acc.find(
         (group) => group.municipality === municipalityName
@@ -73,7 +55,7 @@ export default function BeachesScreen() {
     }, [] as GroupedBeaches[]);
 
     return grouped.sort((a, b) => a.municipality.localeCompare(b.municipality));
-  }, [beaches, municipalities]);
+  }, [beaches]);
 
   // Loading state - only show when no data is available
   if (beachesLoading && !beaches) {
@@ -107,13 +89,9 @@ export default function BeachesScreen() {
   return (
     <BeachesList
       groupedBeaches={groupedBeaches}
-      municipalities={municipalities || []}
-      selectedMunicipality={selectedMunicipality}
-      onMunicipalitySelect={handleMunicipalitySelect}
       onBeachPress={handleBeachPress}
       onRefresh={handleRefresh}
       isLoading={beachesLoading}
-      totalBeachesCount={beaches?.length || 0}
     />
   );
 }
