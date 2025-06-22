@@ -6,8 +6,8 @@ import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { NearbyPlaceGroup, Place } from "@/types/api";
 import { Image } from "expo-image";
-import { router, useLocalSearchParams } from "expo-router";
-import React from "react";
+import { useLocalSearchParams, useNavigation } from "expo-router";
+import React, { useEffect } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -23,6 +23,7 @@ const { width } = Dimensions.get("window");
 export default function BeachDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const beachId = parseInt(id || "0", 10);
+  const navigation = useNavigation();
 
   const { data: beach, loading, error, refetch } = useBeach(beachId);
   const getLocalizedField = useLocalizedField();
@@ -35,20 +36,6 @@ export default function BeachDetailScreen() {
     Typography,
     BorderRadius,
   } = useThemedStyles();
-
-  const handleGoBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace("/(tabs)/beaches");
-    }
-  };
-
-  const handleOpenMap = () => {
-    if (beach?.pin_location) {
-      Linking.openURL(beach.pin_location);
-    }
-  };
 
   const getBeachName = () => {
     return beach ? getLocalizedField(beach, "name") : "";
@@ -64,6 +51,21 @@ export default function BeachDetailScreen() {
 
   const getCategoryName = (category: { name_en: string; name_sq: string }) => {
     return getLocalizedField(category, "name");
+  };
+
+  // Update navigation title when beach data is loaded
+  useEffect(() => {
+    if (beach) {
+      navigation.setOptions({
+        headerTitle: getBeachName(),
+      });
+    }
+  }, [beach, navigation]);
+
+  const handleOpenMap = () => {
+    if (beach?.pin_location) {
+      Linking.openURL(beach.pin_location);
+    }
   };
 
   const getTypeColor = (type: string) => {
@@ -112,28 +114,6 @@ export default function BeachDetailScreen() {
     />
   );
 
-  const renderNearbyCategory = ({ item }: { item: NearbyPlaceGroup }) => {
-    if (!item.places || item.places.length === 0) {
-      return null;
-    }
-
-    return (
-      <View style={styles.categorySection}>
-        <ThemedText style={styles.categoryTitle}>
-          {getCategoryName(item.category)} ({item.places.length})
-        </ThemedText>
-        <FlatList
-          data={item.places}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          renderItem={renderPlaceItem}
-          keyExtractor={(place) => `place-${place.id}`}
-          contentContainerStyle={styles.placesContainer}
-        />
-      </View>
-    );
-  };
-
   if (loading) {
     return (
       <ThemedView
@@ -175,29 +155,6 @@ export default function BeachDetailScreen() {
     container: {
       flex: 1,
       ...themedStyles.background,
-    },
-    header: {
-      flexDirection: "row" as const,
-      alignItems: "center" as const,
-      padding: Spacing.lg,
-      paddingTop: Spacing.xl * 2,
-      ...themedStyles.background,
-    },
-    backButton: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: colors.background,
-      justifyContent: "center" as const,
-      alignItems: "center" as const,
-      ...shadows.sm,
-      marginRight: Spacing.md,
-    },
-    headerTitle: {
-      flex: 1,
-      fontSize: Typography.sizes.lg,
-      fontWeight: Typography.weights.bold,
-      ...themedStyles.text,
     },
     imageCarouselContainer: {
       height: 250,
@@ -295,15 +252,6 @@ export default function BeachDetailScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
-          <ThemedText style={{ fontSize: 18 }}>←</ThemedText>
-        </TouchableOpacity>
-        <ThemedText style={styles.headerTitle} numberOfLines={1}>
-          {getBeachName()}
-        </ThemedText>
-      </View>
-
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {renderImageCarousel()}
 
@@ -339,12 +287,30 @@ export default function BeachDetailScreen() {
             <ThemedText style={styles.nearbyTitle}>
               Nearby Recommendations
             </ThemedText>
-            <FlatList
-              data={beach.nearby_places}
-              renderItem={renderNearbyCategory}
-              keyExtractor={(item) => `category-${item.category.id}`}
-              showsVerticalScrollIndicator={false}
-            />
+            {beach.nearby_places.map((item: NearbyPlaceGroup) => {
+              if (!item.places || item.places.length === 0) {
+                return null;
+              }
+
+              return (
+                <View
+                  key={`category-${item.category.id}`}
+                  style={styles.categorySection}
+                >
+                  <ThemedText style={styles.categoryTitle}>
+                    {getCategoryName(item.category)} ({item.places.length})
+                  </ThemedText>
+                  <FlatList
+                    data={item.places}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    renderItem={renderPlaceItem}
+                    keyExtractor={(place) => `place-${place.id}`}
+                    contentContainerStyle={styles.placesContainer}
+                  />
+                </View>
+              );
+            })}
           </View>
         )}
       </ScrollView>

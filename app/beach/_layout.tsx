@@ -6,8 +6,10 @@ export default function BeachLayout() {
       <Stack.Screen
         name="[id]"
         options={{
-          headerShown: false,
+          headerShown: true,
           presentation: "card",
+          // headerTitle: "Beach",
+          // headerBackTitle: "Back",
         }}
       />
     </Stack>
