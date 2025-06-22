@@ -3,6 +3,7 @@ import React from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Platform,
   RefreshControl,
   Text,
   View,
@@ -105,76 +106,66 @@ export default function HomeScreen() {
   }
 
   return (
-    <ThemedView
-      style={[
-        GlobalStyles.container,
-        themedStyles.background,
-        { paddingTop: 20 },
-      ]}
-    >
-      <FlatList
-        data={events}
-        renderItem={renderEventItem}
-        keyExtractor={(item) => item.id.toString()}
-        refreshControl={
-          <RefreshControl
-            refreshing={eventsLoading}
-            onRefresh={handleRefresh}
-            colors={[colors.primary]}
-          />
-        }
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={renderFooter}
-        ListHeaderComponent={() => (
-          <View>
-            <ThemedView style={GlobalStyles.headerContainer}>
-              <ThemedText
-                type="title"
-                style={[GlobalStyles.headerTitle, themedStyles.text]}
-              >
-                Discover Albania 🇦🇱
-              </ThemedText>
-              <ThemedText
-                style={[
-                  GlobalStyles.headerSubtitle,
-                  themedStyles.textSecondary,
-                ]}
-              >
-                Explore cultural events and beautiful destinations
-              </ThemedText>
-            </ThemedView>
+    <FlatList
+      style={[{ flex: 1 }, themedStyles.background]}
+      contentInsetAdjustmentBehavior="automatic"
+      data={events}
+      renderItem={renderEventItem}
+      keyExtractor={(item) => item.id.toString()}
+      refreshControl={
+        <RefreshControl
+          refreshing={eventsLoading}
+          onRefresh={handleRefresh}
+          colors={[colors.primary]}
+          tintColor={colors.primary}
+        />
+      }
+      onEndReached={handleLoadMore}
+      onEndReachedThreshold={0.5}
+      ListFooterComponent={renderFooter}
+      ListHeaderComponent={() => (
+        <View>
+          <ThemedView style={GlobalStyles.headerContainer}>
+            <ThemedText
+              style={[GlobalStyles.headerSubtitle, themedStyles.textSecondary]}
+            >
+              Explore cultural events and beautiful destinations
+            </ThemedText>
+          </ThemedView>
 
-            {categories && categories.length > 0 && (
-              <ThemedView style={GlobalStyles.sectionContainer}>
-                <ThemedText
-                  type="subtitle"
-                  style={[GlobalStyles.sectionTitle, themedStyles.text]}
-                >
-                  Categories
-                </ThemedText>
-                <FlatList
-                  data={categories}
-                  renderItem={renderCategoryItem}
-                  keyExtractor={(item) => item.id.toString()}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{ paddingHorizontal: 8 }}
-                />
-              </ThemedView>
-            )}
-
+          {categories && categories.length > 0 && (
             <ThemedView style={GlobalStyles.sectionContainer}>
               <ThemedText
                 type="subtitle"
                 style={[GlobalStyles.sectionTitle, themedStyles.text]}
               >
-                Upcoming Events
+                Categories
               </ThemedText>
+              <FlatList
+                data={categories}
+                renderItem={renderCategoryItem}
+                keyExtractor={(item) => item.id.toString()}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 8 }}
+              />
             </ThemedView>
-          </View>
-        )}
-      />
-    </ThemedView>
+          )}
+
+          <ThemedView style={GlobalStyles.sectionContainer}>
+            <ThemedText
+              type="subtitle"
+              style={[GlobalStyles.sectionTitle, themedStyles.text]}
+            >
+              Upcoming Events
+            </ThemedText>
+          </ThemedView>
+        </View>
+      )}
+      showsVerticalScrollIndicator={true}
+      contentContainerStyle={{
+        paddingBottom: Platform.OS === "ios" ? 90 : 60, // Account for tab bar
+      }}
+    />
   );
 }

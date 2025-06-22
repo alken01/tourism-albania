@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, RefreshControl } from "react-native";
+import { FlatList, Platform, RefreshControl } from "react-native";
 
 import BeachGroup from "@/components/BeachGroup";
 import BeachesHeader from "@/components/BeachesHeader";
@@ -51,36 +51,39 @@ export default function BeachesList({
   );
 
   return (
-    <ThemedView style={[GlobalStyles.container, themedStyles.background]}>
-      <FlatList
-        data={groupedBeaches}
-        renderItem={renderBeachGroup}
-        keyExtractor={(item) => item.municipality}
-        refreshControl={
-          <RefreshControl
-            refreshing={isLoading}
-            onRefresh={onRefresh}
-            colors={[colors.primary]}
-          />
-        }
-        ListHeaderComponent={() => (
-          <BeachesHeader
-            municipalities={municipalities}
-            selectedMunicipality={selectedMunicipality}
-            onMunicipalitySelect={onMunicipalitySelect}
-            totalBeachesCount={totalBeachesCount}
-          />
-        )}
-        ListEmptyComponent={() => (
-          <ThemedView style={GlobalStyles.emptyContainer}>
-            <ThemedText
-              style={[GlobalStyles.emptyText, themedStyles.textMuted]}
-            >
-              No beaches found for the selected municipality
-            </ThemedText>
-          </ThemedView>
-        )}
-      />
-    </ThemedView>
+    <FlatList
+      style={[{ flex: 1 }, themedStyles.background]}
+      contentInsetAdjustmentBehavior="automatic"
+      data={groupedBeaches}
+      renderItem={renderBeachGroup}
+      keyExtractor={(item) => item.municipality}
+      refreshControl={
+        <RefreshControl
+          refreshing={isLoading}
+          onRefresh={onRefresh}
+          colors={[colors.primary]}
+          tintColor={colors.primary}
+        />
+      }
+      ListHeaderComponent={() => (
+        <BeachesHeader
+          municipalities={municipalities}
+          selectedMunicipality={selectedMunicipality}
+          onMunicipalitySelect={onMunicipalitySelect}
+          totalBeachesCount={totalBeachesCount}
+        />
+      )}
+      ListEmptyComponent={() => (
+        <ThemedView style={GlobalStyles.emptyContainer}>
+          <ThemedText style={[GlobalStyles.emptyText, themedStyles.textMuted]}>
+            No beaches found for the selected municipality
+          </ThemedText>
+        </ThemedView>
+      )}
+      showsVerticalScrollIndicator={true}
+      contentContainerStyle={{
+        paddingBottom: Platform.OS === "ios" ? 90 : 60, // Account for tab bar
+      }}
+    />
   );
 }

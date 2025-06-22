@@ -34,12 +34,6 @@ export default function BeachesHeader({
   return (
     <View>
       <ThemedView style={GlobalStyles.headerContainer}>
-        <ThemedText
-          style={[GlobalStyles.headerSubtitle, themedStyles.textSecondary]}
-        >
-          Discover the most beautiful beaches along Albania&apos;s coast
-        </ThemedText>
-
         <BeachesFilter
           municipalities={municipalities || []}
           selectedMunicipality={selectedMunicipality}

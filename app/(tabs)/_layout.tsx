@@ -30,9 +30,13 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="events"
         options={{
           title: t("events"),
+          headerStyle: {
+            backgroundColor: "transparent",
+          },
+          tabBarLabel: t("events"),
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="calendar" color={color} />
           ),
@@ -42,6 +46,12 @@ export default function TabLayout() {
         name="beaches"
         options={{
           title: t("beaches"),
+          headerStyle: Platform.select({
+            ios: {
+              backgroundColor: "transparent",
+            },
+            default: {},
+          }),
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="water.waves" color={color} />
           ),
@@ -51,6 +61,12 @@ export default function TabLayout() {
         name="info"
         options={{
           title: t("info"),
+          headerStyle: Platform.select({
+            ios: {
+              backgroundColor: "transparent",
+            },
+            default: {},
+          }),
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="info.circle" color={color} />
           ),

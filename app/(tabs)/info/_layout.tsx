@@ -11,7 +11,7 @@ export default function BeachesLayout() {
         name="index"
         options={{
           headerLargeTitle: true,
-          title: t("beaches"),
+          title: t("info"),
           headerStyle: {
             backgroundColor: "transparent",
           },

@@ -1,6 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { Spacing } from "@/constants/GlobalStyles";
 import { useCurrency } from "@/hooks/useCurrency";
 import { Language, useLanguage } from "@/hooks/useLanguage";
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -207,16 +208,17 @@ export default function InfoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: Spacing.lg,
   },
   scrollView: {
     flex: 1,
-    padding: 16,
+    padding: Spacing.lg,
   },
   section: {
     marginBottom: 32,
   },
   sectionTitle: {
-    marginBottom: 16,
+    marginBottom: Spacing.lg,
     fontSize: 20,
     fontWeight: "bold",
   },
@@ -227,7 +229,7 @@ const styles = StyleSheet.create({
   languageButton: {
     flex: 1,
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: Spacing.lg,
     borderRadius: 8,
     borderWidth: 2,
     alignItems: "center",
@@ -240,7 +242,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 16,
+    paddingVertical: Spacing.lg,
     borderBottomWidth: 1,
   },
   emergencyLeft: {
