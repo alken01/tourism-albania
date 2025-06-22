@@ -14,10 +14,64 @@ interface PaginatedApiState<T> extends ApiState<T> {
   totalPages: number;
 }
 
-// Generic hook for API calls
+// Cache configuration
+const CACHE_TTL = 3 * 60 * 60 * 1000; // 3 hours in milliseconds
+
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  expiry: number;
+}
+
+// In-memory cache storage
+const apiCache = new Map<string, CacheEntry<any>>();
+
+// Cache utility functions
+function generateCacheKey(endpoint: string, params?: any): string {
+  if (!params) return endpoint;
+  const sortedParams = JSON.stringify(params, Object.keys(params).sort());
+  return `${endpoint}:${sortedParams}`;
+}
+
+function getCachedData<T>(cacheKey: string): T | null {
+  const cached = apiCache.get(cacheKey);
+  if (!cached) return null;
+
+  if (Date.now() > cached.expiry) {
+    apiCache.delete(cacheKey);
+    return null;
+  }
+
+  return cached.data;
+}
+
+function setCachedData<T>(cacheKey: string, data: T): void {
+  const now = Date.now();
+  apiCache.set(cacheKey, {
+    data,
+    timestamp: now,
+    expiry: now + CACHE_TTL,
+  });
+}
+
+// Clear expired cache entries periodically
+function clearExpiredCache(): void {
+  const now = Date.now();
+  for (const [key, entry] of apiCache.entries()) {
+    if (now > entry.expiry) {
+      apiCache.delete(key);
+    }
+  }
+}
+
+// Clear expired cache every 30 minutes
+setInterval(clearExpiredCache, 30 * 60 * 1000);
+
+// Generic hook for API calls with caching support
 function useApiCall<T>(
   apiCall: () => Promise<T>,
-  dependencies: any[] = []
+  dependencies: any[] = [],
+  cacheKey?: string
 ): ApiState<T> & { refetch: () => Promise<void> } {
   const [state, setState] = useState<ApiState<T>>({
     data: null,
@@ -25,12 +79,26 @@ function useApiCall<T>(
     error: null,
   });
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (forceRefresh: boolean = false) => {
+    // Check cache first if cache key is provided and not forcing refresh
+    if (cacheKey && !forceRefresh) {
+      const cachedData = getCachedData<T>(cacheKey);
+      if (cachedData) {
+        setState({ data: cachedData, loading: false, error: null });
+        return;
+      }
+    }
+
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
       const data = await apiCall();
       setState({ data, loading: false, error: null });
+
+      // Cache the result if cache key is provided
+      if (cacheKey) {
+        setCachedData(cacheKey, data);
+      }
     } catch (error) {
       setState({
         data: null,
@@ -46,7 +114,7 @@ function useApiCall<T>(
 
   return {
     ...state,
-    refetch: fetchData,
+    refetch: () => fetchData(true), // Force refresh when manually refetching
   };
 }
 
@@ -62,7 +130,29 @@ export function useEvents(params?: EventsQueryParams) {
   });
 
   const fetchEvents = useCallback(
-    async (page: number = 1, append: boolean = false) => {
+    async (
+      page: number = 1,
+      append: boolean = false,
+      forceRefresh: boolean = false
+    ) => {
+      const cacheKey = generateCacheKey("events", { ...params, page });
+
+      // Check cache first if not appending and not forcing refresh
+      if (!append && !forceRefresh) {
+        const cachedData = getCachedData<any>(cacheKey);
+        if (cachedData && cachedData.events) {
+          setState({
+            data: cachedData.events,
+            loading: false,
+            error: null,
+            hasNextPage: cachedData.current_page < cachedData.total_pages,
+            currentPage: cachedData.current_page,
+            totalPages: cachedData.total_pages,
+          });
+          return;
+        }
+      }
+
       if (!append) {
         setState((prev) => ({ ...prev, loading: true, error: null }));
       }
@@ -80,6 +170,11 @@ export function useEvents(params?: EventsQueryParams) {
           currentPage: response.current_page,
           totalPages: response.total_pages,
         }));
+
+        // Cache the response if not appending
+        if (!append) {
+          setCachedData(cacheKey, response);
+        }
       } catch (error) {
         setState((prev) => ({
           ...prev,
@@ -106,7 +201,7 @@ export function useEvents(params?: EventsQueryParams) {
 
   return {
     ...state,
-    refetch: () => fetchEvents(),
+    refetch: () => fetchEvents(1, false, true), // Force refresh when manually refetching
     loadMore,
   };
 }
@@ -117,7 +212,8 @@ export function useEvent(id: number) {
 
 // Categories hooks
 export function useCategories() {
-  return useApiCall(() => apiService.getCategories());
+  const cacheKey = generateCacheKey("categories");
+  return useApiCall(() => apiService.getCategories(), [], cacheKey);
 }
 
 export function useCategory(id: number) {
@@ -126,7 +222,8 @@ export function useCategory(id: number) {
 
 // Municipalities hooks
 export function useMunicipalities() {
-  return useApiCall(() => apiService.getMunicipalities());
+  const cacheKey = generateCacheKey("municipalities");
+  return useApiCall(() => apiService.getMunicipalities(), [], cacheKey);
 }
 
 export function useMunicipality(id: number) {
@@ -135,7 +232,8 @@ export function useMunicipality(id: number) {
 
 // Beaches hooks
 export function useBeaches(params?: BeachesQueryParams) {
-  return useApiCall(() => apiService.getBeaches(params), [params]);
+  const cacheKey = generateCacheKey("beaches", params);
+  return useApiCall(() => apiService.getBeaches(params), [params], cacheKey);
 }
 
 export function useBeach(id: number) {
@@ -160,4 +258,21 @@ export function usePublicBeaches() {
 
 export function useBeachesByMunicipality(municipalityId: number) {
   return useBeaches({ municipality_id: municipalityId });
+}
+
+// Cache management utilities
+export function clearApiCache(): void {
+  apiCache.clear();
+}
+
+export function clearCacheByKey(endpoint: string, params?: any): void {
+  const cacheKey = generateCacheKey(endpoint, params);
+  apiCache.delete(cacheKey);
+}
+
+export function getCacheStats(): { size: number; keys: string[] } {
+  return {
+    size: apiCache.size,
+    keys: Array.from(apiCache.keys()),
+  };
 }
