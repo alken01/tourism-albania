@@ -2,6 +2,7 @@ import {
   Beach,
   BeachesQueryParams,
   Category,
+  DetailedBeach,
   Event,
   EventsQueryParams,
   EventsResponse,

@@ -75,6 +75,11 @@ export default function BeachCard({
       ...shadows.md,
       ...themedStyles.card,
     },
+    imageContainer: {
+      position: "relative" as const,
+      width: "100%" as const,
+      height: 120,
+    },
     image: {
       width: "100%" as const,
       height: 120,
@@ -89,14 +94,11 @@ export default function BeachCard({
     placeholderText: {
       fontSize: 48,
     },
-    content: {
-      padding: Spacing.md,
-    },
-    header: {
-      flexDirection: "row" as const,
-      justifyContent: "space-between" as const,
-      alignItems: "center" as const,
-      marginBottom: Spacing.sm,
+    badgeContainer: {
+      position: "absolute" as const,
+      top: Spacing.sm,
+      right: Spacing.sm,
+      zIndex: 1,
     },
     typeBadge: {
       paddingHorizontal: Spacing.sm - 2,
@@ -109,22 +111,38 @@ export default function BeachCard({
       fontWeight: Typography.weights.semibold,
       textTransform: "uppercase" as const,
     },
-    publicBadge: {
-      backgroundColor: colors.success,
-      paddingHorizontal: Spacing.sm - 2,
-      paddingVertical: Spacing.xs - 1,
-      borderRadius: BorderRadius.xs,
+    blurOverlay: {
+      position: "absolute" as const,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: 80,
     },
-    publicText: {
+    darkOverlay: {
+      position: "absolute" as const,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: 40,
+      backgroundColor: "rgba(0, 0, 0, 0.3)",
+    },
+    imageTitleContainer: {
+      position: "absolute" as const,
+      bottom: Spacing.sm,
+      left: Spacing.sm,
+      right: Spacing.sm,
+      zIndex: 2,
+    },
+    imageTitle: {
       color: colors.textLight,
-      fontSize: Typography.sizes.xs,
-      fontWeight: Typography.weights.semibold,
-    },
-    title: {
       fontSize: Typography.sizes.sm,
       fontWeight: Typography.weights.bold,
-      marginBottom: Spacing.sm - 2,
-      lineHeight: Typography.sizes.sm * Typography.lineHeights.tight,
+      textShadowColor: "rgba(0, 0, 0, 0.5)",
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 2,
+    },
+    content: {
+      padding: Spacing.md,
     },
     locationContainer: {
       marginBottom: Spacing.sm - 2,
@@ -144,38 +162,43 @@ export default function BeachCard({
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
       <ThemedView style={cardStyles.container}>
-        {beach.photo_urls && beach.photo_urls.length > 0 ? (
-          <Image
-            source={{ uri: beach.photo_urls[0] }}
-            style={cardStyles.image}
-            contentFit="cover"
-            transition={200}
-          />
-        ) : (
-          <View style={cardStyles.placeholderImage}>
-            <Text style={cardStyles.placeholderText}>🏖️</Text>
+        <View style={cardStyles.imageContainer}>
+          {beach.photo_urls && beach.photo_urls.length > 0 ? (
+            <Image
+              source={{ uri: beach.photo_urls[0] }}
+              style={cardStyles.image}
+              contentFit="cover"
+              transition={200}
+            />
+          ) : (
+            <View style={cardStyles.placeholderImage}>
+              <Text style={cardStyles.placeholderText}>🏖️</Text>
+            </View>
+          )}
+
+          {/* Gradient overlay for subtle blur fade effect */}
+          {/* <LinearGradient
+            colors={[
+              "transparent",
+              "rgba(255, 255, 255, 0.2)",
+              "rgba(255, 255, 255, 0.4)",
+            ]}
+            locations={[0, 0.1, 0.2]}
+            style={cardStyles.blurOverlay}
+          /> */}
+
+          {/* Blur overlay at bottom */}
+          {/* <BlurView intensity={15} style={cardStyles.blurOverlay} /> */}
+
+          {/* Beach name positioned bottom left */}
+          <View style={cardStyles.imageTitleContainer}>
+            <Text style={cardStyles.imageTitle} numberOfLines={2}>
+              {getBeachName()}
+            </Text>
           </View>
-        )}
+        </View>
 
         <View style={cardStyles.content}>
-          <View style={cardStyles.header}>
-            <View
-              style={[
-                cardStyles.typeBadge,
-                { backgroundColor: getTypeColor(beach.type) },
-              ]}
-            >
-              <Text style={cardStyles.typeText}>{beach.type}</Text>
-            </View>
-          </View>
-
-          <ThemedText
-            style={[cardStyles.title, themedStyles.text]}
-            numberOfLines={2}
-          >
-            {getBeachName()}
-          </ThemedText>
-
           {showLocation && (
             <View style={cardStyles.locationContainer}>
               <ThemedText style={cardStyles.locationText}>

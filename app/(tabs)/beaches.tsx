@@ -49,10 +49,6 @@ export default function BeachesScreen() {
     await refetchBeaches();
   };
 
-  const renderBeachItem = ({ item }: { item: Beach }) => (
-    <BeachCard beach={item} onPress={handleBeachPress} />
-  );
-
   const renderBeachGroup = ({ item }: { item: GroupedBeaches }) => (
     <View style={GlobalStyles.groupContainer}>
       <ThemedText
@@ -61,13 +57,18 @@ export default function BeachesScreen() {
       >
         {item.municipality} ({item.beaches.length})
       </ThemedText>
-      <View style={GlobalStyles.grid}>
-        {item.beaches.map((beach) => (
-          <View key={beach.id} style={GlobalStyles.gridItem}>
+      <FlatList
+        data={item.beaches}
+        renderItem={({ item: beach }) => (
+          <View style={GlobalStyles.horizontalCardContainer}>
             <BeachCard beach={beach} onPress={handleBeachPress} />
           </View>
-        ))}
-      </View>
+        )}
+        keyExtractor={(beach) => beach.id.toString()}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={GlobalStyles.horizontalList}
+      />
     </View>
   );
 

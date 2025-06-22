@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
@@ -35,8 +36,8 @@ export default function HomeScreen() {
   } = useCategories();
 
   const handleEventPress = (event: Event) => {
-    // Navigate to event detail - route will be created later
-    console.log("Navigate to event:", event.id);
+    // Navigate to event detail page
+    router.push(`/event/${event.id}`);
   };
 
   const handleCategoryPress = (category: Category) => {
