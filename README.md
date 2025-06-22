@@ -1,50 +1,156 @@
-# Welcome to your Expo app 👋
+# Albanian Tourism App 🇦🇱
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native mobile application for exploring Albanian cultural events and beautiful beaches. Built with Expo and TypeScript, this app provides users with information about tourism opportunities across Albania.
 
-## Get started
+## Features
 
-1. Install dependencies
+### 📅 Events Tab
 
-   ```bash
-   npm install
-   ```
+- Browse upcoming cultural events across Albania
+- View events by category (Art Fest, Theater, Concerts, Sports, Local Celebrations, Agrotourism & Gastronomy, Visual Arts)
+- See event details including dates, times, locations, and images
+- Infinite scroll pagination for browsing large event lists
+- Pull-to-refresh functionality
 
-2. Start the app
+### 🏖️ Beaches Tab
 
-   ```bash
-   npx expo start
-   ```
+- Discover beautiful beaches along Albania's coastline
+- Filter beaches by municipality
+- View beach information including type (Public, Private, Managed), area, and descriptions
+- Detailed beach information with photos and location coordinates
+- Support for both English and Albanian language content
 
-In the output, you'll find options to open the app in a
+## Technical Stack
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- **Framework**: React Native with Expo
+- **Language**: TypeScript
+- **Navigation**: Expo Router
+- **State Management**: React Hooks (useState, useEffect)
+- **API Integration**: Custom hooks for data fetching
+- **UI Components**: Themed components with light/dark mode support
+- **Images**: Expo Image with optimization
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## API Integration
 
-## Get a fresh project
+The app consumes data from the Albanian Tourism API (`https://tea2.base.al/api/`) with the following endpoints:
 
-When you're ready, run:
+- `GET /events` - Retrieve cultural events with pagination
+- `GET /categories` - Get event categories
+- `GET /municipalities` - Get Albanian municipalities
+- `GET /beaches` - Get beach information
 
-```bash
-npm run reset-project
+## Project Structure
+
+```
+├── app/                    # Expo Router pages
+│   ├── (tabs)/            # Tab-based navigation
+│   │   ├── index.tsx      # Events screen
+│   │   └── explore.tsx    # Beaches screen
+│   └── _layout.tsx        # Root layout
+├── components/            # Reusable UI components
+│   ├── EventCard.tsx      # Event display component
+│   ├── BeachCard.tsx      # Beach display component
+│   ├── CategoryCard.tsx   # Category display component
+│   └── ui/               # Base UI components
+├── hooks/                 # Custom React hooks
+│   └── useApi.ts         # API data fetching hooks
+├── services/             # API service layer
+│   └── api.ts           # API client and methods
+├── types/               # TypeScript type definitions
+│   └── api.ts          # API response types
+└── constants/          # App constants
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Getting Started
 
-## Learn more
+### Prerequisites
 
-To learn more about developing your project with Expo, look at the following resources:
+- Node.js (v18 or later)
+- npm or yarn
+- Expo CLI
+- iOS Simulator or Android Emulator (for testing)
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Installation
 
-## Join the community
+1. Clone the repository:
 
-Join our community of developers creating universal apps.
+```bash
+git clone <repository-url>
+cd tourism-albania
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Start the development server:
+
+```bash
+npm start
+```
+
+4. Run on your preferred platform:
+
+```bash
+# iOS
+npm run ios
+
+# Android
+npm run android
+
+# Web
+npm run web
+```
+
+## Development
+
+### Key Components
+
+- **EventCard**: Displays event information with images, dates, and categories
+- **BeachCard**: Shows beach details with type badges and descriptions
+- **CategoryCard**: Presents event categories with overlay text on images
+
+### Custom Hooks
+
+- **useEvents**: Manages event data fetching with pagination
+- **useBeaches**: Handles beach data with filtering capabilities
+- **useCategories**: Fetches event categories
+- **useMunicipalities**: Loads municipality data
+
+### API Service
+
+The `apiService` provides methods for:
+
+- Fetching paginated events
+- Retrieving categories and municipalities
+- Getting beach information with filtering
+- Error handling and loading states
+
+## Features to Implement
+
+- [ ] Event detail pages
+- [ ] Beach detail pages with maps
+- [ ] Favorite events/beaches
+- [ ] Search functionality
+- [ ] Offline caching
+- [ ] Push notifications for new events
+- [ ] User reviews and ratings
+- [ ] Navigation to Google Maps for locations
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+This project is open source and available under the MIT License.
+
+## API Data Source
+
+Event and beach data is provided by the Albanian Tourism API. The app reverse-engineers the public endpoints to provide a mobile-first experience for exploring Albanian tourism opportunities.
