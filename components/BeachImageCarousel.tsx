@@ -1,5 +1,5 @@
 import { ThemedText } from "@/components/ThemedText";
-import { useLocalizedField } from "@/hooks/useLanguage";
+import { useLanguage, useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Beach } from "@/types/api";
 import { Image } from "expo-image";
@@ -14,22 +14,18 @@ interface BeachImageCarouselProps {
 
 export default function BeachImageCarousel({ beach }: BeachImageCarouselProps) {
   const getLocalizedField = useLocalizedField();
+  const { t } = useLanguage();
   const { colors, Spacing, Typography, BorderRadius } = useThemedStyles();
 
   const getBeachName = () => {
     return getLocalizedField(beach, "name");
   };
 
-  const getTypeColor = (type: string) => {
-    switch (type.toLowerCase()) {
-      case "publike":
-        return colors.success;
-      case "kontrate":
-        return colors.warning;
-      case "e menaxhuar":
-        return colors.info;
-      default:
-        return colors.textMuted;
+  const getBeachType = () => {
+    if (beach.is_public) {
+      return t("public_beach");
+    } else {
+      return t("private_beach");
     }
   };
 
@@ -73,9 +69,10 @@ export default function BeachImageCarousel({ beach }: BeachImageCarouselProps) {
     },
     bottomLeftContainer: {
       position: "absolute" as const,
-      bottom: Spacing.xl,
+
+      bottom: Spacing.lg,
       left: Spacing.lg,
-      right: Spacing.xl * 2,
+      gap: Spacing.sm,
     },
     beachTitleOverlay: {
       fontSize: Typography.sizes.xxl,
@@ -113,29 +110,13 @@ export default function BeachImageCarousel({ beach }: BeachImageCarouselProps) {
         keyExtractor={(item, index) => `image-${index}`}
       />
 
-      {/* Overlay Content */}
-      <View style={styles.imageOverlay}>
-        {/* Top Right Badge */}
-        <View style={styles.topRightContainer}>
-          <View
-            style={[
-              styles.typeBadgeOverlay,
-              { backgroundColor: getTypeColor(beach.type) },
-            ]}
-          >
-            <ThemedText style={styles.typeTextOverlay}>{beach.type}</ThemedText>
-          </View>
-        </View>
-
-        {/* Bottom Left Content */}
-        <View style={styles.bottomLeftContainer}>
-          <ThemedText style={styles.beachTitleOverlay}>
-            {getBeachName()}
-          </ThemedText>
-          <ThemedText style={styles.locationTextOverlay}>
-            📍 {beach.municipality.name} • {beach.area} ha
-          </ThemedText>
-        </View>
+      <View style={styles.bottomLeftContainer}>
+        <ThemedText style={styles.beachTitleOverlay}>
+          {getBeachName()}
+        </ThemedText>
+        <ThemedText style={styles.locationTextOverlay}>
+          📍 {beach.municipality.name} • {getBeachType()}
+        </ThemedText>
       </View>
     </View>
   );

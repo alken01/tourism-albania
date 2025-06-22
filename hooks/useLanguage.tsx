@@ -17,6 +17,8 @@ const translations = {
     info: "Info",
     categories: "Categories",
     map: "Map",
+    public_beach: "Public Beach",
+    private_beach: "Private Beach",
 
     // Info tab
     emergency_numbers: "Emergency Numbers",
@@ -50,6 +52,8 @@ const translations = {
     categories: "Kategoritë",
     map: "Harta",
     searchBeaches: "Kërko plazhet",
+    public_beach: "Plazh Publik",
+    private_beach: "Plazh Privat",
 
     // Info tab
     emergency_numbers: "Numrat e Emergjencës",
