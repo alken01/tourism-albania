@@ -20,12 +20,7 @@ export default function EventsScreen() {
     hasNextPage,
   } = useEvents();
 
-  const {
-    data: categories,
-    loading: categoriesLoading,
-    error: categoriesError,
-    refetch: refetchCategories,
-  } = useCategories();
+  const { data: categories, refetch: refetchCategories } = useCategories();
 
   const handleEventPress = (event: Event) => {
     // Navigate to event detail page

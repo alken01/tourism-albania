@@ -46,8 +46,8 @@ export default function BeachGroup({
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
-          paddingLeft: Spacing.md,
-          paddingRight: Spacing.md,
+          paddingLeft: Spacing.sm,
+          paddingRight: Spacing.sm,
         }}
       />
     </View>

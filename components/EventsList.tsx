@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 
-import CategoryCard from "@/components/CategoryCard";
+import CategoriesSection from "@/components/CategoriesSection";
 import EventCard from "@/components/EventCard";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -41,10 +41,6 @@ export default function EventsList({
 
   const renderEventItem = ({ item }: { item: Event }) => (
     <EventCard event={item} onPress={onEventPress} />
-  );
-
-  const renderCategoryItem = ({ item }: { item: Category }) => (
-    <CategoryCard category={item} onPress={onCategoryPress} />
   );
 
   const renderFooter = () => {
@@ -81,24 +77,10 @@ export default function EventsList({
       ListFooterComponent={renderFooter}
       ListHeaderComponent={() => (
         <View>
-          {categories && categories.length > 0 && (
-            <ThemedView style={GlobalStyles.sectionContainer}>
-              <ThemedText
-                type="subtitle"
-                style={[GlobalStyles.sectionTitle, themedStyles.text]}
-              >
-                Categories
-              </ThemedText>
-              <FlatList
-                data={categories}
-                renderItem={renderCategoryItem}
-                keyExtractor={(item) => item.id.toString()}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 8 }}
-              />
-            </ThemedView>
-          )}
+          <CategoriesSection
+            categories={categories}
+            onCategoryPress={onCategoryPress}
+          />
 
           <ThemedView style={GlobalStyles.sectionContainer}>
             <ThemedText

@@ -1,5 +1,5 @@
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import { BlurRadius, Spacing } from "@/constants/GlobalStyles";
 import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Category } from "@/types/api";
@@ -13,17 +13,12 @@ interface CategoryCardProps {
 }
 
 const { width } = Dimensions.get("window");
-const CARD_WIDTH = (width - 48) / 2; // Two cards per row with margins
+const CARD_WIDTH = (width - Spacing.lg) / 3;
+const CARD_HEIGHT = CARD_WIDTH / 3;
 
 export default function CategoryCard({ category, onPress }: CategoryCardProps) {
-  const { themedStyles, colors, shadows, Spacing, Typography, BorderRadius } =
-    useThemedStyles();
-
+  const { colors, Spacing, BorderRadius } = useThemedStyles();
   const getLocalizedField = useLocalizedField();
-
-  const handlePress = () => {
-    onPress?.(category);
-  };
 
   const getCategoryName = () => {
     return getLocalizedField(category, "name");
@@ -32,55 +27,54 @@ export default function CategoryCard({ category, onPress }: CategoryCardProps) {
   const cardStyles = {
     container: {
       width: CARD_WIDTH,
-      height: 120,
+      height: CARD_HEIGHT,
       marginHorizontal: Spacing.sm,
-      marginVertical: Spacing.sm,
-      borderRadius: BorderRadius.lg,
+      borderRadius: BorderRadius.xl,
       overflow: "hidden" as const,
       position: "relative" as const,
-      ...shadows.md,
-      ...themedStyles.card,
+      backgroundColor: colors.background,
+      justifyContent: "center" as const,
+      alignItems: "center" as const,
     },
     image: {
+      position: "absolute" as const,
       width: "100%" as const,
       height: "100%" as const,
     },
-    overlay: {
+    blackOverlay: {
       position: "absolute" as const,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      backgroundColor: colors.overlay,
-      padding: Spacing.md,
-      justifyContent: "center" as const,
+      width: "100%" as const,
+      height: "100%" as const,
+      backgroundColor: "rgba(0, 0, 0, 0.4)",
     },
-    title: {
-      fontSize: Typography.sizes.md,
-      fontWeight: Typography.weights.bold,
-      color: colors.textLight,
-      textAlign: "center" as const,
-      lineHeight: Typography.sizes.md * Typography.lineHeights.normal,
+    textContainer: {
+      zIndex: 1,
+      position: "relative" as const,
+      alignItems: "center" as const,
+      justifyContent: "center" as const,
     },
   };
 
   return (
-    <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
-      <ThemedView style={cardStyles.container}>
-        {category.photo && (
-          <Image
-            source={{ uri: category.photo }}
-            style={cardStyles.image}
-            contentFit="cover"
-            transition={200}
-          />
-        )}
-
-        <View style={cardStyles.overlay}>
-          <ThemedText style={cardStyles.title} numberOfLines={2}>
-            {getCategoryName()}
-          </ThemedText>
-        </View>
-      </ThemedView>
+    <TouchableOpacity
+      style={cardStyles.container}
+      onPress={() => onPress?.(category)}
+    >
+      <Image
+        source={{ uri: category.photo }}
+        style={cardStyles.image}
+        contentFit="cover"
+        blurRadius={BlurRadius.sm}
+      />
+      <View style={cardStyles.blackOverlay} />
+      <View style={cardStyles.textContainer}>
+        <ThemedText
+          type="badgeNoBg"
+          style={{ color: colors.textLight, textAlign: "center" }}
+        >
+          {getCategoryName()}
+        </ThemedText>
+      </View>
     </TouchableOpacity>
   );
 }

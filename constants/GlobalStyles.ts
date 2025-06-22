@@ -156,6 +156,16 @@ export const BorderRadius = {
   full: 9999,
 };
 
+// Blur radius
+export const BlurRadius = {
+  sm: 24,
+  md: 48,
+  lg: 96,
+  xl: 192,
+  xxl: 384,
+  full: 9999,
+};
+
 // Border width
 export const BorderWidth = {
   xs: 1,

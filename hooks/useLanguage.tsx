@@ -15,6 +15,7 @@ const translations = {
     events: "Events",
     beaches: "Beaches",
     info: "Info",
+    categories: "Categories",
 
     // Info tab
     emergency_numbers: "Emergency Numbers",
@@ -44,6 +45,7 @@ const translations = {
     events: "Ngjarjet",
     beaches: "Plazhet",
     info: "Informacion",
+    categories: "Kategoritë",
 
     // Info tab
     emergency_numbers: "Numrat e Emergjencës",

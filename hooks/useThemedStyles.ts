@@ -1,5 +1,6 @@
 import {
   BorderRadius,
+  BlurRadius,
   createThemedStyles,
   getThemedColors,
   getThemedShadows,

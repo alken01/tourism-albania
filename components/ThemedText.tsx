@@ -13,7 +13,8 @@ export type ThemedTextProps = TextProps & {
     | "subtitle"
     | "defaultLight"
     | "link"
-    | "badge";
+    | "badge"
+    | "badgeNoBg";
 };
 
 export function ThemedText({
@@ -67,6 +68,12 @@ export function ThemedText({
           paddingHorizontal: Spacing.sm,
           paddingVertical: Spacing.xs,
           borderRadius: BorderRadius.xxl,
+        };
+      case "badgeNoBg":
+        return {
+          fontSize: Typography.sizes.xs,
+          fontWeight: Typography.weights.bold,
+          color: colors.textLight,
         };
       case "default":
       default:
