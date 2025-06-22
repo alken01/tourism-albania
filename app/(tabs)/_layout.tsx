@@ -7,9 +7,11 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { t } = useLanguage();
 
   return (
     <Tabs
@@ -30,7 +32,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Events",
+          title: t("events"),
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="calendar" color={color} />
           ),
@@ -39,9 +41,18 @@ export default function TabLayout() {
       <Tabs.Screen
         name="beaches"
         options={{
-          title: "Beaches",
+          title: t("beaches"),
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="water.waves" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="info"
+        options={{
+          title: t("info"),
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="info.circle" color={color} />
           ),
         }}
       />

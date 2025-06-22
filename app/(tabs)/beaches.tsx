@@ -21,7 +21,6 @@ interface GroupedBeaches {
 
 export default function BeachesScreen() {
   const { GlobalStyles, themedStyles, colors } = useThemedStyles();
-  const [preferredLanguage, setPreferredLanguage] = useState<"en" | "sq">("en");
   const [selectedMunicipality, setSelectedMunicipality] = useState<
     number | null
   >(null);
@@ -51,11 +50,7 @@ export default function BeachesScreen() {
   };
 
   const renderBeachItem = ({ item }: { item: Beach }) => (
-    <BeachCard
-      beach={item}
-      onPress={handleBeachPress}
-      preferredLanguage={preferredLanguage}
-    />
+    <BeachCard beach={item} onPress={handleBeachPress} />
   );
 
   const renderBeachGroup = ({ item }: { item: GroupedBeaches }) => (
@@ -69,11 +64,7 @@ export default function BeachesScreen() {
       <View style={GlobalStyles.grid}>
         {item.beaches.map((beach) => (
           <View key={beach.id} style={GlobalStyles.gridItem}>
-            <BeachCard
-              beach={beach}
-              onPress={handleBeachPress}
-              preferredLanguage={preferredLanguage}
-            />
+            <BeachCard beach={beach} onPress={handleBeachPress} />
           </View>
         ))}
       </View>

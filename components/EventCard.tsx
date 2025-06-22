@@ -1,5 +1,6 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Event } from "@/types/api";
 import { Image } from "expo-image";
@@ -9,19 +10,16 @@ import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 interface EventCardProps {
   event: Event;
   onPress?: (event: Event) => void;
-  preferredLanguage?: "en" | "sq";
 }
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 32; // Account for horizontal margins
 
-export default function EventCard({
-  event,
-  onPress,
-  preferredLanguage = "en",
-}: EventCardProps) {
+export default function EventCard({ event, onPress }: EventCardProps) {
   const { themedStyles, colors, shadows, Spacing, Typography, BorderRadius } =
     useThemedStyles();
+
+  const getLocalizedField = useLocalizedField();
 
   const handlePress = () => {
     onPress?.(event);
@@ -37,15 +35,12 @@ export default function EventCard({
   };
 
   const getEventName = () => {
-    return preferredLanguage === "sq" && event.event_name_sq
-      ? event.event_name_sq.replace(/"/g, "") // Remove quotes from name
-      : event.event_name_en.replace(/"/g, "");
+    const name = getLocalizedField(event, "event_name");
+    return name.replace(/"/g, ""); // Remove quotes from name
   };
 
   const getCategoryName = () => {
-    return preferredLanguage === "sq"
-      ? event.category.name_sq
-      : event.category.name_en;
+    return getLocalizedField(event.category, "name");
   };
 
   const cardStyles = {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -17,7 +17,6 @@ import { Category, Event } from "@/types/api";
 
 export default function HomeScreen() {
   const { GlobalStyles, themedStyles, colors } = useThemedStyles();
-  const [preferredLanguage, setPreferredLanguage] = useState<"en" | "sq">("en");
 
   const {
     data: events,
@@ -50,19 +49,11 @@ export default function HomeScreen() {
   };
 
   const renderEventItem = ({ item }: { item: Event }) => (
-    <EventCard
-      event={item}
-      onPress={handleEventPress}
-      preferredLanguage={preferredLanguage}
-    />
+    <EventCard event={item} onPress={handleEventPress} />
   );
 
   const renderCategoryItem = ({ item }: { item: Category }) => (
-    <CategoryCard
-      category={item}
-      onPress={handleCategoryPress}
-      preferredLanguage={preferredLanguage}
-    />
+    <CategoryCard category={item} onPress={handleCategoryPress} />
   );
 
   const handleLoadMore = () => {

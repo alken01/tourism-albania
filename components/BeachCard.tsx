@@ -1,5 +1,6 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Beach } from "@/types/api";
 import { Image } from "expo-image";
@@ -9,7 +10,6 @@ import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 interface BeachCardProps {
   beach: Beach;
   onPress?: (beach: Beach) => void;
-  preferredLanguage?: "en" | "sq";
   showLocation?: boolean;
 }
 
@@ -19,7 +19,6 @@ const CARD_WIDTH = (width - 48) / 2; // Two cards per row with margins
 export default function BeachCard({
   beach,
   onPress,
-  preferredLanguage = "en",
   showLocation = true,
 }: BeachCardProps) {
   const {
@@ -32,17 +31,18 @@ export default function BeachCard({
     BorderRadius,
   } = useThemedStyles();
 
+  const getLocalizedField = useLocalizedField();
+
   const handlePress = () => {
     onPress?.(beach);
   };
 
   const getBeachName = () => {
-    return preferredLanguage === "sq" ? beach.name_sq : beach.name_en;
+    return getLocalizedField(beach, "name");
   };
 
   const getBeachDescription = () => {
-    const description =
-      preferredLanguage === "sq" ? beach.description_sq : beach.description_en;
+    const description = getLocalizedField(beach, "description");
     return description.length > 100
       ? description.substring(0, 100) + "..."
       : description;

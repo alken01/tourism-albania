@@ -1,5 +1,6 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Category } from "@/types/api";
 import { Image } from "expo-image";
@@ -9,26 +10,23 @@ import { Dimensions, TouchableOpacity, View } from "react-native";
 interface CategoryCardProps {
   category: Category;
   onPress?: (category: Category) => void;
-  preferredLanguage?: "en" | "sq";
 }
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - 48) / 2; // Two cards per row with margins
 
-export default function CategoryCard({
-  category,
-  onPress,
-  preferredLanguage = "en",
-}: CategoryCardProps) {
+export default function CategoryCard({ category, onPress }: CategoryCardProps) {
   const { themedStyles, colors, shadows, Spacing, Typography, BorderRadius } =
     useThemedStyles();
+
+  const getLocalizedField = useLocalizedField();
 
   const handlePress = () => {
     onPress?.(category);
   };
 
   const getCategoryName = () => {
-    return preferredLanguage === "sq" ? category.name_sq : category.name_en;
+    return getLocalizedField(category, "name");
   };
 
   const cardStyles = {
