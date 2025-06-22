@@ -4,7 +4,7 @@ import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Place } from "@/types/api";
 import { Image } from "expo-image";
 import React from "react";
-import { TouchableOpacity, View } from "react-native";
+import { Linking, TouchableOpacity, View } from "react-native";
 
 interface PlaceCardProps {
   place: Place;
@@ -17,7 +17,11 @@ export default function PlaceCard({ place, onPress }: PlaceCardProps) {
     useThemedStyles();
 
   const handlePress = () => {
-    onPress?.(place);
+    const latitude = parseFloat(place.latitude);
+    const longitude = parseFloat(place.longitude);
+    const placeName = encodeURIComponent(getPlaceName());
+    const mapsUrl = `https://maps.google.com/maps?q=${placeName}@${latitude},${longitude}`;
+    Linking.openURL(mapsUrl);
   };
 
   const getPlaceName = () => {
