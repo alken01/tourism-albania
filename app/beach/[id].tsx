@@ -103,6 +103,33 @@ export default function BeachDetailScreen() {
           )}
           keyExtractor={(item, index) => `image-${index}`}
         />
+
+        {/* Overlay Content */}
+        <View style={styles.imageOverlay}>
+          {/* Top Right Badge */}
+          <View style={styles.topRightContainer}>
+            <View
+              style={[
+                styles.typeBadgeOverlay,
+                { backgroundColor: getTypeColor(beach.type) },
+              ]}
+            >
+              <ThemedText style={styles.typeTextOverlay}>
+                {beach.type}
+              </ThemedText>
+            </View>
+          </View>
+
+          {/* Bottom Left Content */}
+          <View style={styles.bottomLeftContainer}>
+            <ThemedText style={styles.beachTitleOverlay}>
+              {getBeachName()}
+            </ThemedText>
+            <ThemedText style={styles.locationTextOverlay}>
+              📍 {beach.municipality.name} • {beach.area} ha
+            </ThemedText>
+          </View>
+        </View>
       </View>
     );
   };
@@ -157,52 +184,64 @@ export default function BeachDetailScreen() {
       ...themedStyles.background,
     },
     imageCarouselContainer: {
-      height: 250,
+      height: 400, // Increased height for better hero effect
+      position: "relative" as const,
     },
     carouselImage: {
       width: width,
-      height: 250,
+      height: 400,
+    },
+    imageOverlay: {
+      position: "absolute" as const,
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.3)", // Semi-transparent overlay for text readability
+    },
+    topRightContainer: {
+      position: "absolute" as const,
+      top: Spacing.xl,
+      right: Spacing.lg,
+    },
+    typeBadgeOverlay: {
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.sm,
+      borderRadius: BorderRadius.md,
+    },
+    typeTextOverlay: {
+      color: colors.textLight,
+      fontSize: Typography.sizes.sm,
+      fontWeight: Typography.weights.semibold,
+      textTransform: "uppercase" as const,
+    },
+    bottomLeftContainer: {
+      position: "absolute" as const,
+      bottom: Spacing.xl,
+      left: Spacing.lg,
+      right: Spacing.xl * 2, // Leave space for potential map button
+    },
+    beachTitleOverlay: {
+      fontSize: Typography.sizes.xxl,
+      fontWeight: Typography.weights.bold,
+      color: colors.textLight,
+      marginBottom: Spacing.xs,
+      textShadowColor: "rgba(0, 0, 0, 0.75)",
+      textShadowOffset: { width: 1, height: 1 },
+      textShadowRadius: 3,
+    },
+    locationTextOverlay: {
+      fontSize: Typography.sizes.md,
+      color: colors.textLight,
+      textShadowColor: "rgba(0, 0, 0, 0.75)",
+      textShadowOffset: { width: 1, height: 1 },
+      textShadowRadius: 3,
     },
     content: {
       flex: 1,
     },
     infoSection: {
       padding: Spacing.lg,
-    },
-    titleRow: {
-      flexDirection: "row" as const,
-      justifyContent: "space-between" as const,
-      alignItems: "flex-start" as const,
-      marginBottom: Spacing.md,
-    },
-    beachTitle: {
-      flex: 1,
-      fontSize: Typography.sizes.xl,
-      fontWeight: Typography.weights.bold,
-      marginRight: Spacing.md,
-      ...themedStyles.text,
-    },
-    typeBadge: {
-      paddingHorizontal: Spacing.md,
-      paddingVertical: Spacing.sm,
-      borderRadius: BorderRadius.md,
-    },
-    typeText: {
-      color: colors.textLight,
-      fontSize: Typography.sizes.sm,
-      fontWeight: Typography.weights.semibold,
-      textTransform: "uppercase" as const,
-    },
-    locationRow: {
-      flexDirection: "row" as const,
-      alignItems: "center" as const,
-      marginBottom: Spacing.lg,
-    },
-    locationText: {
-      flex: 1,
-      fontSize: Typography.sizes.md,
-      color: colors.textSecondary,
-      marginRight: Spacing.md,
     },
     mapButton: {
       flexDirection: "row" as const,
@@ -211,6 +250,8 @@ export default function BeachDetailScreen() {
       paddingHorizontal: Spacing.md,
       paddingVertical: Spacing.sm,
       borderRadius: BorderRadius.md,
+      alignSelf: "flex-start" as const,
+      marginBottom: Spacing.lg,
     },
     mapButtonText: {
       color: colors.textLight,
@@ -256,26 +297,9 @@ export default function BeachDetailScreen() {
         {renderImageCarousel()}
 
         <View style={styles.infoSection}>
-          <View style={styles.titleRow}>
-            <ThemedText style={styles.beachTitle}>{getBeachName()}</ThemedText>
-            <View
-              style={[
-                styles.typeBadge,
-                { backgroundColor: getTypeColor(beach.type) },
-              ]}
-            >
-              <ThemedText style={styles.typeText}>{beach.type}</ThemedText>
-            </View>
-          </View>
-
-          <View style={styles.locationRow}>
-            <ThemedText style={styles.locationText}>
-              📍 {beach.municipality.name} • {beach.area} ha
-            </ThemedText>
-            <TouchableOpacity style={styles.mapButton} onPress={handleOpenMap}>
-              <ThemedText style={styles.mapButtonText}>🗺️ View Map</ThemedText>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity style={styles.mapButton} onPress={handleOpenMap}>
+            <ThemedText style={styles.mapButtonText}>🗺️ View Map</ThemedText>
+          </TouchableOpacity>
 
           <ThemedText style={styles.description}>
             {getBeachDescription()}

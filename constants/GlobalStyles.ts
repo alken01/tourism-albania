@@ -41,6 +41,15 @@ export const AppColors = {
     icon: "#687076",
     iconActive: "#4CAF50",
     iconInactive: "#9E9E9E",
+
+    // Placeholder colors
+    blue: "#4A90E2",
+    green: "#7ED321",
+    yellow: "#F5A623",
+    red: "#D0021B",
+    purple: "#9013FE",
+    orange: "#F8A51D",
+    pink: "#BD10E0",
   },
   dark: {
     // Primary colors
@@ -81,6 +90,15 @@ export const AppColors = {
     icon: "#9BA1A6",
     iconActive: "#66BB6A",
     iconInactive: "#666",
+
+    // Placeholder colors
+    blue: "#2D5A8B",
+    green: "#4A7C59",
+    yellow: "#B8941A",
+    red: "#8B2D2D",
+    purple: "#5A2D8B",
+    orange: "#B85A1A",
+    pink: "#8B2D5A",
   },
 };
 

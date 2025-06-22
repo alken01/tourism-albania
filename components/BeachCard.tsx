@@ -79,6 +79,16 @@ export default function BeachCard({
       width: "100%" as const,
       height: 120,
     },
+    placeholderImage: {
+      width: "100%" as const,
+      height: 120,
+      backgroundColor: colors.blue,
+      justifyContent: "center" as const,
+      alignItems: "center" as const,
+    },
+    placeholderText: {
+      fontSize: 48,
+    },
     content: {
       padding: Spacing.md,
     },
@@ -134,13 +144,17 @@ export default function BeachCard({
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
       <ThemedView style={cardStyles.container}>
-        {beach.photo_urls && beach.photo_urls.length > 0 && (
+        {beach.photo_urls && beach.photo_urls.length > 0 ? (
           <Image
             source={{ uri: beach.photo_urls[0] }}
             style={cardStyles.image}
             contentFit="cover"
             transition={200}
           />
+        ) : (
+          <View style={cardStyles.placeholderImage}>
+            <Text style={cardStyles.placeholderText}>🏖️</Text>
+          </View>
         )}
 
         <View style={cardStyles.content}>
