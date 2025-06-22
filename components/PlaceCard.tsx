@@ -3,6 +3,7 @@ import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Place } from "@/types/api";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { Linking, TouchableOpacity, View } from "react-native";
 
@@ -30,29 +31,42 @@ export default function PlaceCard({ place, onPress }: PlaceCardProps) {
 
   const styles = {
     container: {
-      width: 200,
+      width: 160,
       marginRight: Spacing.md,
       borderRadius: BorderRadius.lg,
       overflow: "hidden" as const,
       backgroundColor: colors.background,
       ...shadows.sm,
+      position: "relative" as const,
     },
     image: {
       width: "100%" as const,
-      height: 120,
+      height: 100,
     },
-    content: {
-      padding: Spacing.md,
+    gradientOverlay: {
+      position: "absolute" as const,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: "80%" as const,
+    },
+    overlay: {
+      position: "absolute" as const,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      padding: Spacing.sm,
     },
     name: {
-      fontSize: Typography.sizes.sm,
+      fontSize: Typography.sizes.xs,
       fontWeight: Typography.weights.semibold,
-      marginBottom: Spacing.xs,
-      ...themedStyles.text,
+      marginBottom: Spacing.xs / 2,
+      color: colors.textLight,
     },
     distance: {
       fontSize: Typography.sizes.xs,
-      color: colors.textSecondary,
+      color: colors.textLight,
+      opacity: 0.9,
     },
   };
 
@@ -68,12 +82,20 @@ export default function PlaceCard({ place, onPress }: PlaceCardProps) {
         contentFit="cover"
         transition={200}
       />
-      <View style={styles.content}>
-        <ThemedText style={styles.name} numberOfLines={2}>
+      <LinearGradient
+        colors={["transparent", "rgba(0,0,0,0.2)", "rgba(0,0,0,0.8)"]}
+        locations={[0, 0.3, 1]}
+        style={styles.gradientOverlay}
+      />
+      <View style={styles.overlay}>
+        <ThemedText type="badgeNoBg" numberOfLines={2}>
           {getPlaceName()}
         </ThemedText>
-        <ThemedText style={styles.distance}>
-          📍 {place.distance.toFixed(1)} km away
+        <ThemedText
+          type="badgeNoBg"
+          style={{ fontWeight: Typography.weights.regular }}
+        >
+          {place.distance.toFixed(1)} km
         </ThemedText>
       </View>
     </TouchableOpacity>
