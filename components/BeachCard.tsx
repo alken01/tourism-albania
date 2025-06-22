@@ -15,7 +15,7 @@ interface BeachCardProps {
 }
 
 const { width } = Dimensions.get("window");
-const CARD_WIDTH = (width - Spacing.lg) / 2;
+const CARD_WIDTH = (width - 4 * Spacing.md) / 2;
 
 export default function BeachCard({
   beach,
@@ -59,15 +59,15 @@ export default function BeachCard({
     imageContainer: {
       position: "relative" as const,
       width: "100%" as const,
-      height: 160,
+      height: 200, // Increased from 160 to 200 to make cards taller
     },
     image: {
       width: "100%" as const,
-      height: 160,
+      height: 200, // Increased from 160 to 200 to make cards taller
     },
     placeholderImage: {
       width: "100%" as const,
-      height: 160,
+      height: 200, // Increased from 160 to 200 to make cards taller
       backgroundColor: colors.blue,
       justifyContent: "center" as const,
       alignItems: "center" as const,
@@ -156,8 +156,8 @@ export default function BeachCard({
     description: {
       color: "#FFFFFF",
       fontSize: Typography.sizes.xs,
-      fontWeight: Typography.weights.regular as any,
-      lineHeight: Typography.sizes.xs * 1.4,
+      fontWeight: Typography.weights.light as any,
+      lineHeight: Typography.sizes.md,
       opacity: 0.9,
     },
   };
@@ -202,7 +202,7 @@ export default function BeachCard({
             )}
 
             <View style={cardStyles.descriptionContainer}>
-              <ThemedText style={cardStyles.description} numberOfLines={2}>
+              <ThemedText style={cardStyles.description} numberOfLines={3}>
                 {getBeachDescription()}
               </ThemedText>
             </View>
