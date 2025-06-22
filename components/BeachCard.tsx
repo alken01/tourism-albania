@@ -1,3 +1,4 @@
+import BeachMapButton from "@/components/BeachMapButton";
 import { ThemedText } from "@/components/ThemedText";
 import { Spacing } from "@/constants/GlobalStyles";
 import { useLocalizedField } from "@/hooks/useLanguage";
@@ -136,9 +137,25 @@ export default function BeachCard({
 
           <View style={cardStyles.contentOverlay}>
             <View style={cardStyles.titleContainer}>
-              <ThemedText type="subtitle" style={{ color: colors.textLight }}>
-                {getBeachName()}
-              </ThemedText>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <ThemedText
+                  type="subtitle"
+                  style={{ color: colors.textLight, flex: 1 }}
+                >
+                  {getBeachName()}
+                </ThemedText>
+                <BeachMapButton
+                  beach={beach}
+                  size="small"
+                  style={{ marginLeft: Spacing.xs }}
+                />
+              </View>
             </View>
 
             {showLocation && (

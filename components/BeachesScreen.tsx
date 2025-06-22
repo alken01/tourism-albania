@@ -1,4 +1,5 @@
 import BeachesList from "@/components/BeachesList";
+import BeachesMap from "@/components/BeachesMap";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useBeaches } from "@/hooks/useApi";
@@ -11,8 +12,11 @@ export interface GroupedBeaches {
   municipality: string;
   beaches: Beach[];
 }
+export interface BeachesScreenProps {
+  viewMode?: "list" | "map";
+}
 
-export default function BeachesScreen() {
+export default function BeachesScreen({ viewMode }: BeachesScreenProps) {
   const { GlobalStyles, themedStyles, colors } = useThemedStyles();
 
   const {
@@ -87,11 +91,17 @@ export default function BeachesScreen() {
   }
 
   return (
-    <BeachesList
-      groupedBeaches={groupedBeaches}
-      onBeachPress={handleBeachPress}
-      onRefresh={handleRefresh}
-      isLoading={beachesLoading}
-    />
+    <ThemedView style={{ flex: 1, ...themedStyles.background }}>
+      {viewMode === "list" ? (
+        <BeachesList
+          groupedBeaches={groupedBeaches}
+          onBeachPress={handleBeachPress}
+          onRefresh={handleRefresh}
+          isLoading={beachesLoading}
+        />
+      ) : (
+        <BeachesMap beaches={beaches || []} onBeachPress={handleBeachPress} />
+      )}
+    </ThemedView>
   );
 }

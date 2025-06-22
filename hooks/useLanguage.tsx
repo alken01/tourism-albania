@@ -16,6 +16,7 @@ const translations = {
     beaches: "Beaches",
     info: "Info",
     categories: "Categories",
+    map: "Map",
 
     // Info tab
     emergency_numbers: "Emergency Numbers",
@@ -46,6 +47,7 @@ const translations = {
     beaches: "Plazhet",
     info: "Informacion",
     categories: "Kategoritë",
+    map: "Harta",
 
     // Info tab
     emergency_numbers: "Numrat e Emergjencës",
