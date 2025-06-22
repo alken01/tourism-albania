@@ -26,8 +26,8 @@ export default function BeachGroup({
         style={{
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: "space-between",
           paddingHorizontal: Spacing.lg,
+          justifyContent: "space-between",
         }}
       >
         <ThemedText type="subtitle">{municipality}</ThemedText>
@@ -46,8 +46,8 @@ export default function BeachGroup({
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
-          paddingLeft: Spacing.sm,
-          paddingRight: Spacing.sm,
+          paddingLeft: Spacing.md,
+          paddingRight: Spacing.md,
         }}
       />
     </View>

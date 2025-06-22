@@ -61,12 +61,12 @@ export function ThemedText({
       case "badge":
         return {
           fontSize: Typography.sizes.xs,
-          fontWeight: Typography.weights.light,
-          color: colors.primary,
-          backgroundColor: colors.primary + "20",
-          paddingHorizontal: Spacing.xs,
+          fontWeight: Typography.weights.medium,
+          color: colors.textLight,
+          backgroundColor: colors.textMuted,
+          paddingHorizontal: Spacing.sm,
           paddingVertical: Spacing.xs,
-          borderRadius: BorderRadius.sm,
+          borderRadius: BorderRadius.xxl,
         };
       case "default":
       default:
