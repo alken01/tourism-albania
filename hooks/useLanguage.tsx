@@ -23,6 +23,7 @@ const translations = {
     currency_exchange: "Currency Exchange",
     language_settings: "Language Settings",
     select_language: "Select Language",
+    searchBeaches: "Search beaches",
 
     // Emergency numbers
     police: "Police",
@@ -48,6 +49,7 @@ const translations = {
     info: "Informacion",
     categories: "Kategoritë",
     map: "Harta",
+    searchBeaches: "Kërko plazhet",
 
     // Info tab
     emergency_numbers: "Numrat e Emergjencës",

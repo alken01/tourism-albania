@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Dimensions, Platform, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
@@ -10,11 +10,20 @@ import { router } from "expo-router";
 interface BeachesMapProps {
   beaches: Beach[];
   onBeachPress?: (beach: Beach) => void;
+  focusBeachId?: string;
+  focusLatitude?: string;
+  focusLongitude?: string;
 }
 
 const { width, height } = Dimensions.get("window");
 
-export default function BeachesMap({ beaches, onBeachPress }: BeachesMapProps) {
+export default function BeachesMap({
+  beaches,
+  onBeachPress,
+  focusBeachId,
+  focusLatitude,
+  focusLongitude,
+}: BeachesMapProps) {
   const { colors, themedStyles } = useThemedStyles();
   const mapRef = useRef<MapView>(null);
 
@@ -25,6 +34,28 @@ export default function BeachesMap({ beaches, onBeachPress }: BeachesMapProps) {
     latitudeDelta: 2.5,
     longitudeDelta: 2.5,
   };
+
+  // Focus on specific beach when parameters are provided
+  useEffect(() => {
+    if (focusLatitude && focusLongitude && mapRef.current) {
+      const latitude = parseFloat(focusLatitude);
+      const longitude = parseFloat(focusLongitude);
+
+      if (!isNaN(latitude) && !isNaN(longitude)) {
+        setTimeout(() => {
+          mapRef.current?.animateToRegion(
+            {
+              latitude,
+              longitude,
+              latitudeDelta: 0.02,
+              longitudeDelta: 0.02,
+            },
+            1000
+          );
+        }, 500); // Small delay to ensure map is fully loaded
+      }
+    }
+  }, [focusLatitude, focusLongitude, beaches]);
 
   const handleMarkerPress = (beach: Beach) => {
     router.push(`/beach/${beach.id}`);

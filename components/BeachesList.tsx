@@ -40,6 +40,9 @@ export default function BeachesList({
     <FlatList
       style={[{ flex: 1 }, themedStyles.background]}
       contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustContentInsets={true}
+      automaticallyAdjustsScrollIndicatorInsets={true}
+      keyboardDismissMode="on-drag"
       data={groupedBeaches}
       renderItem={renderBeachGroup}
       keyExtractor={(item) => item.municipality}

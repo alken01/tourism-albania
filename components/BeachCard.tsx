@@ -135,27 +135,23 @@ export default function BeachCard({
             style={cardStyles.gradientOverlay}
           />
 
+          {/* Map button positioned at top right */}
+          <View
+            style={{
+              position: "absolute",
+              top: Spacing.sm,
+              right: Spacing.sm,
+              zIndex: 10,
+            }}
+          >
+            <BeachMapButton beach={beach} />
+          </View>
+
           <View style={cardStyles.contentOverlay}>
             <View style={cardStyles.titleContainer}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <ThemedText
-                  type="subtitle"
-                  style={{ color: colors.textLight, flex: 1 }}
-                >
-                  {getBeachName()}
-                </ThemedText>
-                <BeachMapButton
-                  beach={beach}
-                  size="small"
-                  style={{ marginLeft: Spacing.xs }}
-                />
-              </View>
+              <ThemedText type="subtitle" style={{ color: colors.textLight }}>
+                {getBeachName()}
+              </ThemedText>
             </View>
 
             {showLocation && (

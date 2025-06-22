@@ -17,6 +17,9 @@ export default function BeachesLayout() {
           },
           headerBlurEffect: "regular",
           headerShadowVisible: false,
+          headerSearchBarOptions: {
+            placeholder: t("searchBeaches"),
+          },
         }}
       />
     </Stack>
