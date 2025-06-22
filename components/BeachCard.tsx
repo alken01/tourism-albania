@@ -9,6 +9,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Animated,
   Dimensions,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -27,7 +28,8 @@ interface BeachCardProps {
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - Spacing.md) / 1.7;
 const CARD_HEIGHT = 300;
-const AUTO_SLIDE_INTERVAL = 3000; // 3 seconds
+const AUTO_SLIDE_INTERVAL = 5000; // 5 seconds (slower)
+const FADE_DURATION = 800; // Fade animation duration
 
 export default function BeachCard({
   beach,
@@ -38,10 +40,20 @@ export default function BeachCard({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const autoSlideTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const fadeAnimsRef = useRef<Animated.Value[]>([]);
 
   const getLocalizedField = useLocalizedField();
 
-  // Auto-slide functionality
+  // Initialize fade animations for all images
+  useEffect(() => {
+    if (beach.photo_urls && beach.photo_urls.length > 1) {
+      fadeAnimsRef.current = beach.photo_urls.map(
+        (_, index) => new Animated.Value(index === 0 ? 1 : 0)
+      );
+    }
+  }, [beach.photo_urls]);
+
+  // Auto-slide functionality with fade animation
   useEffect(() => {
     const hasMultipleImages = beach.photo_urls && beach.photo_urls.length > 1;
 
@@ -52,11 +64,27 @@ export default function BeachCard({
         setCurrentImageIndex((prevIndex) => {
           const nextIndex = (prevIndex + 1) % beach.photo_urls!.length;
 
-          // Scroll to next image
-          scrollViewRef.current?.scrollTo({
-            x: nextIndex * CARD_WIDTH,
-            animated: true,
-          });
+          // Animate fade out current image and fade in next image
+          if (
+            fadeAnimsRef.current[prevIndex] &&
+            fadeAnimsRef.current[nextIndex]
+          ) {
+            // Fade out current
+            Animated.timing(fadeAnimsRef.current[prevIndex], {
+              toValue: 0,
+              duration: FADE_DURATION / 2,
+              useNativeDriver: true,
+            }).start();
+
+            // Fade in next with slight delay for smooth transition
+            setTimeout(() => {
+              Animated.timing(fadeAnimsRef.current[nextIndex], {
+                toValue: 1,
+                duration: FADE_DURATION / 2,
+                useNativeDriver: true,
+              }).start();
+            }, FADE_DURATION / 4);
+          }
 
           return nextIndex;
         });
@@ -83,6 +111,18 @@ export default function BeachCard({
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const currentIndex = Math.round(contentOffsetX / CARD_WIDTH);
+
+    if (currentIndex !== currentImageIndex && fadeAnimsRef.current.length > 0) {
+      // Manual scroll - update fade animations
+      fadeAnimsRef.current.forEach((anim, index) => {
+        Animated.timing(anim, {
+          toValue: index === currentIndex ? 1 : 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      });
+    }
+
     setCurrentImageIndex(currentIndex);
   };
 
@@ -98,19 +138,36 @@ export default function BeachCard({
 
     if (!hasMultipleImages) return;
 
-    // Restart auto-slide after user interaction
-    autoSlideTimerRef.current = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => {
-        const nextIndex = (prevIndex + 1) % beach.photo_urls!.length;
+    // Restart auto-slide after user interaction with longer delay
+    setTimeout(() => {
+      autoSlideTimerRef.current = setInterval(() => {
+        setCurrentImageIndex((prevIndex) => {
+          const nextIndex = (prevIndex + 1) % beach.photo_urls!.length;
 
-        scrollViewRef.current?.scrollTo({
-          x: nextIndex * CARD_WIDTH,
-          animated: true,
+          // Animate fade transitions
+          if (
+            fadeAnimsRef.current[prevIndex] &&
+            fadeAnimsRef.current[nextIndex]
+          ) {
+            Animated.timing(fadeAnimsRef.current[prevIndex], {
+              toValue: 0,
+              duration: FADE_DURATION / 2,
+              useNativeDriver: true,
+            }).start();
+
+            setTimeout(() => {
+              Animated.timing(fadeAnimsRef.current[nextIndex], {
+                toValue: 1,
+                duration: FADE_DURATION / 2,
+                useNativeDriver: true,
+              }).start();
+            }, FADE_DURATION / 4);
+          }
+
+          return nextIndex;
         });
-
-        return nextIndex;
-      });
-    }, AUTO_SLIDE_INTERVAL);
+      }, AUTO_SLIDE_INTERVAL);
+    }, 2000); // 2 second delay before resuming auto-slide
   };
 
   const getBeachName = () => {
@@ -144,7 +201,21 @@ export default function BeachCard({
       width: "100%" as const,
       height: CARD_HEIGHT,
     },
+    imageStack: {
+      position: "absolute" as const,
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    },
     image: {
+      width: CARD_WIDTH,
+      height: CARD_HEIGHT,
+    },
+    animatedImage: {
+      position: "absolute" as const,
+      top: 0,
+      left: 0,
       width: CARD_WIDTH,
       height: CARD_HEIGHT,
     },
@@ -157,6 +228,23 @@ export default function BeachCard({
     },
     placeholderText: {
       fontSize: 48,
+    },
+    // Edge blur effects
+    leftBlur: {
+      position: "absolute" as const,
+      left: 0,
+      top: 0,
+      bottom: 0,
+      width: 30,
+      zIndex: 5,
+    },
+    rightBlur: {
+      position: "absolute" as const,
+      right: 0,
+      top: 0,
+      bottom: 0,
+      width: 30,
+      zIndex: 5,
     },
     // Pagination dots
     paginationContainer: {
@@ -175,6 +263,7 @@ export default function BeachCard({
     },
     paginationDotActive: {
       backgroundColor: "rgba(255, 255, 255, 0.9)",
+      transform: [{ scale: 1.2 }],
     },
     // Linear gradient overlay
     gradientOverlay: {
@@ -234,29 +323,69 @@ export default function BeachCard({
       );
     }
 
-    // Multiple images - render carousel with auto-slide
+    // Multiple images - render stacked carousel with fade animations
     return (
-      <ScrollView
-        ref={scrollViewRef}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onScroll={handleScroll}
-        onScrollBeginDrag={handleScrollBeginDrag}
-        onScrollEndDrag={handleScrollEndDrag}
-        scrollEventThrottle={16}
-        style={cardStyles.carouselContainer}
-      >
-        {beach.photo_urls.map((photoUrl, index) => (
-          <Image
-            key={index}
-            source={{ uri: photoUrl }}
-            style={cardStyles.image}
-            contentFit="cover"
-            transition={200}
-          />
-        ))}
-      </ScrollView>
+      <View style={cardStyles.carouselContainer}>
+        {/* Stacked images with fade animations */}
+        <View style={cardStyles.imageStack}>
+          {beach.photo_urls.map((photoUrl, index) => (
+            <Animated.View
+              key={index}
+              style={[
+                cardStyles.animatedImage,
+                {
+                  opacity:
+                    fadeAnimsRef.current[index] ||
+                    new Animated.Value(index === 0 ? 1 : 0),
+                },
+              ]}
+            >
+              <Image
+                source={{ uri: photoUrl }}
+                style={cardStyles.image}
+                contentFit="cover"
+                transition={200}
+              />
+            </Animated.View>
+          ))}
+        </View>
+
+        {/* Invisible ScrollView for manual interaction */}
+        <ScrollView
+          ref={scrollViewRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          onScrollBeginDrag={handleScrollBeginDrag}
+          onScrollEndDrag={handleScrollEndDrag}
+          scrollEventThrottle={16}
+          style={{ opacity: 0 }}
+        >
+          {beach.photo_urls.map((_, index) => (
+            <View
+              key={index}
+              style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}
+            />
+          ))}
+        </ScrollView>
+
+        {/* Edge blur effects */}
+        <LinearGradient
+          colors={["rgba(0,0,0,0.1)", "transparent"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={cardStyles.leftBlur}
+          pointerEvents="none"
+        />
+        <LinearGradient
+          colors={["transparent", "rgba(0,0,0,0.1)"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={cardStyles.rightBlur}
+          pointerEvents="none"
+        />
+      </View>
     );
   };
 
@@ -266,11 +395,24 @@ export default function BeachCard({
     return (
       <View style={cardStyles.paginationContainer}>
         {beach.photo_urls?.map((_, index) => (
-          <View
+          <Animated.View
             key={index}
             style={[
               cardStyles.paginationDot,
               index === currentImageIndex && cardStyles.paginationDotActive,
+              {
+                opacity: fadeAnimsRef.current[index]
+                  ? Animated.multiply(
+                      fadeAnimsRef.current[index],
+                      0.5
+                    ).interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.5, 1],
+                    })
+                  : index === currentImageIndex
+                  ? 1
+                  : 0.5,
+              },
             ]}
           />
         ))}
