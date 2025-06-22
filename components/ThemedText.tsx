@@ -11,6 +11,7 @@ export type ThemedTextProps = TextProps & {
     | "title"
     | "defaultSemiBold"
     | "subtitle"
+    | "defaultLight"
     | "link"
     | "badge";
 };
@@ -44,6 +45,12 @@ export function ThemedText({
           fontSize: Typography.sizes.md,
           lineHeight: Typography.sizes.md * Typography.lineHeights.relaxed,
           fontWeight: Typography.weights.semibold,
+        };
+      case "defaultLight":
+        return {
+          fontSize: Typography.sizes.md,
+          lineHeight: Typography.sizes.md * Typography.lineHeights.relaxed,
+          fontWeight: Typography.weights.light,
         };
       case "link":
         return {

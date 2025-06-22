@@ -4,6 +4,7 @@ import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Beach } from "@/types/api";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React from "react";
 import { Dimensions, Text, TouchableOpacity, View } from "react-native";
@@ -15,15 +16,15 @@ interface BeachCardProps {
 }
 
 const { width } = Dimensions.get("window");
-const CARD_WIDTH = (width - 4 * Spacing.md) / 2;
+const CARD_WIDTH = (width - Spacing.md) / 1.7;
+const CARD_HEIGHT = 300;
 
 export default function BeachCard({
   beach,
   onPress,
   showLocation = true,
 }: BeachCardProps) {
-  const { themedStyles, colors, shadows, Spacing, Typography, BorderRadius } =
-    useThemedStyles();
+  const { colors, Spacing, Typography, BorderRadius } = useThemedStyles();
 
   const getLocalizedField = useLocalizedField();
 
@@ -50,79 +51,36 @@ export default function BeachCard({
     container: {
       width: CARD_WIDTH,
       marginHorizontal: Spacing.sm,
-      marginVertical: Spacing.sm,
-      borderRadius: BorderRadius.lg,
+      marginTop: Spacing.md,
+      borderRadius: BorderRadius.xxl,
       overflow: "hidden" as const,
-      ...shadows.md,
-      ...themedStyles.card,
     },
     imageContainer: {
       position: "relative" as const,
       width: "100%" as const,
-      height: 200, // Increased from 160 to 200 to make cards taller
+      height: CARD_HEIGHT,
     },
     image: {
       width: "100%" as const,
-      height: 200, // Increased from 160 to 200 to make cards taller
+      height: CARD_HEIGHT,
     },
     placeholderImage: {
       width: "100%" as const,
-      height: 200, // Increased from 160 to 200 to make cards taller
-      backgroundColor: colors.blue,
+      height: CARD_HEIGHT,
+      backgroundColor: colors.primary,
       justifyContent: "center" as const,
       alignItems: "center" as const,
     },
     placeholderText: {
       fontSize: 48,
     },
-    // Multi-layer blur overlay effect
-    blurOverlay1: {
+    // Linear gradient overlay
+    gradientOverlay: {
       position: "absolute" as const,
       bottom: 0,
       left: 0,
       right: 0,
-      height: "75%" as const,
-      backgroundColor: "rgba(0, 0, 0, 0.1)",
-    },
-    blurOverlay2: {
-      position: "absolute" as const,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      height: "65%" as const,
-      backgroundColor: "rgba(0, 0, 0, 0.15)",
-    },
-    blurOverlay3: {
-      position: "absolute" as const,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      height: "55%" as const,
-      backgroundColor: "rgba(0, 0, 0, 0.2)",
-    },
-    blurOverlay4: {
-      position: "absolute" as const,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      height: "45%" as const,
-      backgroundColor: "rgba(0, 0, 0, 0.25)",
-    },
-    blurOverlay5: {
-      position: "absolute" as const,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      height: "35%" as const,
-      backgroundColor: "rgba(0, 0, 0, 0.3)",
-    },
-    blurOverlay6: {
-      position: "absolute" as const,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      height: "25%" as const,
-      backgroundColor: "rgba(0, 0, 0, 0.4)",
+      height: "70%" as const,
     },
     contentOverlay: {
       position: "absolute" as const,
@@ -135,12 +93,6 @@ export default function BeachCard({
     titleContainer: {
       marginBottom: Spacing.xs,
     },
-    titleText: {
-      color: "#FFFFFF",
-      fontSize: Typography.sizes.md,
-      fontWeight: Typography.weights.bold as any,
-      lineHeight: Typography.sizes.md * 1.2,
-    },
     locationContainer: {
       marginBottom: Spacing.xs,
     },
@@ -149,9 +101,6 @@ export default function BeachCard({
       fontSize: Typography.sizes.xs,
       fontWeight: Typography.weights.medium as any,
       opacity: 0.95,
-    },
-    descriptionContainer: {
-      marginTop: Spacing.xs,
     },
     description: {
       color: "#FFFFFF",
@@ -179,16 +128,15 @@ export default function BeachCard({
             </View>
           )}
 
-          <View style={cardStyles.blurOverlay1} />
-          <View style={cardStyles.blurOverlay2} />
-          <View style={cardStyles.blurOverlay3} />
-          <View style={cardStyles.blurOverlay4} />
-          <View style={cardStyles.blurOverlay5} />
-          <View style={cardStyles.blurOverlay6} />
+          <LinearGradient
+            colors={["transparent", "rgba(0,0,0,0.0)", "rgba(0,0,0,1)"]}
+            locations={[0, 0.0, 1]}
+            style={cardStyles.gradientOverlay}
+          />
 
           <View style={cardStyles.contentOverlay}>
             <View style={cardStyles.titleContainer}>
-              <ThemedText type="title" style={cardStyles.titleText}>
+              <ThemedText type="subtitle" style={{ color: colors.textLight }}>
                 {getBeachName()}
               </ThemedText>
             </View>
@@ -201,11 +149,16 @@ export default function BeachCard({
               </View>
             )}
 
-            <View style={cardStyles.descriptionContainer}>
-              <ThemedText style={cardStyles.description} numberOfLines={3}>
-                {getBeachDescription()}
-              </ThemedText>
-            </View>
+            <ThemedText
+              type="defaultLight"
+              style={{
+                color: colors.textLight,
+                lineHeight: Typography.sizes.sm * Typography.lineHeights.normal,
+              }}
+              numberOfLines={3}
+            >
+              {getBeachDescription()}
+            </ThemedText>
           </View>
         </View>
       </View>
