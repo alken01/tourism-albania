@@ -45,7 +45,7 @@ The app consumes data from the Albanian Tourism API (`https://tea2.base.al/api/`
 ├── app/                    # Expo Router pages
 │   ├── (tabs)/            # Tab-based navigation
 │   │   ├── index.tsx      # Events screen
-│   │   └── explore.tsx    # Beaches screen
+│   │   └── beaches.tsx    # Beaches screen
 │   └── _layout.tsx        # Root layout
 ├── components/            # Reusable UI components
 │   ├── EventCard.tsx      # Event display component

@@ -15,7 +15,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { useBeaches, useMunicipalities } from "@/hooks/useApi";
 import { Beach } from "@/types/api";
 
-export default function ExploreScreen() {
+export default function BeachesScreen() {
   const [preferredLanguage, setPreferredLanguage] = useState<"en" | "sq">("en");
   const [selectedMunicipality, setSelectedMunicipality] = useState<
     number | null

@@ -15,6 +15,7 @@ interface BeachCardProps {
   beach: Beach;
   onPress?: (beach: Beach) => void;
   preferredLanguage?: "en" | "sq";
+  showLocation?: boolean;
 }
 
 const { width } = Dimensions.get("window");
@@ -24,6 +25,7 @@ export default function BeachCard({
   beach,
   onPress,
   preferredLanguage = "en",
+  showLocation = true,
 }: BeachCardProps) {
   const handlePress = () => {
     onPress?.(beach);
@@ -88,24 +90,17 @@ export default function BeachCard({
             {getBeachName()}
           </ThemedText>
 
-          <View style={styles.locationContainer}>
-            <ThemedText style={styles.locationText}>
-              📍 {beach.municipality.name}
-            </ThemedText>
-          </View>
+          {showLocation && (
+            <View style={styles.locationContainer}>
+              <ThemedText style={styles.locationText}>
+                📍 {beach.municipality.name}
+              </ThemedText>
+            </View>
+          )}
 
           <ThemedText style={styles.description} numberOfLines={3}>
             {getBeachDescription()}
           </ThemedText>
-
-          <View style={styles.detailsContainer}>
-            <ThemedText style={styles.detailText}>
-              Area: {parseFloat(beach.area).toLocaleString()} m²
-            </ThemedText>
-            <ThemedText style={styles.detailText}>
-              Code: {beach.code}
-            </ThemedText>
-          </View>
         </View>
       </ThemedView>
     </TouchableOpacity>
