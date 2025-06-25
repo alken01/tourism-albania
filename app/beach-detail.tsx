@@ -1,10 +1,12 @@
 import BeachImageCarousel from "@/components/BeachImageCarousel";
 import BeachInfoSection from "@/components/BeachInfoSection";
+import BeachMapSection from "@/components/BeachMapSection";
+import InstagramPosts from "@/components/InstagramPosts";
 import NearbyPlacesAccordion from "@/components/NearbyPlacesAccordion";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useBeach } from "@/hooks/useApi";
-import { useLocalizedField } from "@/hooks/useLanguage";
+import { useLanguage, useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { router, useLocalSearchParams } from "expo-router";
 import { RefreshCw, X } from "lucide-react-native";
@@ -140,10 +142,25 @@ export default function BeachDetailModal() {
 
   const { data: beach, loading, error, refetch } = useBeach(beachId);
   const getLocalizedField = useLocalizedField();
-  const { colors, Spacing, BorderRadius } = useThemedStyles();
+  const { t } = useLanguage();
+  const { colors, Spacing, BorderRadius, Typography } = useThemedStyles();
 
   const getBeachName = () => {
-    return beach ? getLocalizedField(beach, "name") : "";
+    const name = beach ? getLocalizedField(beach, "name") : "";
+    // Convert to title case
+    return name.replace(
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    );
+  };
+
+  const getBeachType = () => {
+    if (!beach) return "";
+    return beach.is_public ? t("public_beach") : t("private_beach");
+  };
+
+  const shouldShowTypeBadge = () => {
+    return beach && !beach.is_public; // Only show badge for private beaches
   };
 
   const handleClose = () => {
@@ -197,6 +214,24 @@ export default function BeachDetailModal() {
     titleContainer: {
       flex: 1,
       marginRight: Spacing.md,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    titleText: {
+      flex: 1,
+      marginRight: Spacing.sm,
+    },
+    typeBadge: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: Spacing.xs,
+      borderRadius: BorderRadius.full,
+    },
+    typeBadgeText: {
+      color: colors.textLight,
+      fontSize: Typography.sizes.xs,
+      fontWeight: Typography.weights.bold,
+      textTransform: "uppercase",
     },
     closeButton: {
       backgroundColor: colors.backgroundSecondary,
@@ -217,12 +252,24 @@ export default function BeachDetailModal() {
         <View style={styles.handleBar} />
         <View style={styles.headerContent}>
           <View style={styles.titleContainer}>
-            <ThemedText type="title" numberOfLines={1}>
-              {getBeachName()}
-            </ThemedText>
-            <ThemedText type="default" style={{ color: colors.textSecondary }}>
-              {beach.municipality.name}
-            </ThemedText>
+            <View style={styles.titleText}>
+              <ThemedText type="title" numberOfLines={1}>
+                {getBeachName()}
+              </ThemedText>
+              <ThemedText
+                type="default"
+                style={{ color: colors.textSecondary }}
+              >
+                {beach.municipality.name}
+              </ThemedText>
+            </View>
+            {shouldShowTypeBadge() && (
+              <View style={styles.typeBadge}>
+                <ThemedText style={styles.typeBadgeText}>
+                  {getBeachType()}
+                </ThemedText>
+              </View>
+            )}
           </View>
           <TouchableOpacity
             style={styles.closeButton}
@@ -243,7 +290,17 @@ export default function BeachDetailModal() {
         <View style={styles.sectionSpacer} />
         <BeachInfoSection beach={beach} />
         <View style={styles.sectionSpacer} />
+        <InstagramPosts
+          hashtag={`${getBeachName().replace(/\s+/g, "").toLowerCase()}beach`}
+          location={beach.municipality.name}
+          title="Instagram Posts"
+          subtitle={`Posts from ${getBeachName()}`}
+          maxPosts={6}
+        />
+        <View style={styles.sectionSpacer} />
         <NearbyPlacesAccordion nearbyPlaces={beach.nearby_places || []} />
+        <View style={styles.sectionSpacer} />
+        <BeachMapSection beach={beach} />
       </ScrollView>
     </SafeAreaView>
   );

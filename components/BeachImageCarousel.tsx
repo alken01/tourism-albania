@@ -17,7 +17,7 @@ export default function BeachImageCarousel({ beach }: BeachImageCarouselProps) {
 
   const handleScroll = (event: any) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
-    const imageWidth = width - Spacing.lg * 4; // Account for gaps
+    const imageWidth = width - Spacing.lg * 2; // Account for container margins
     const currentIndex = Math.round(scrollPosition / (imageWidth + Spacing.md));
     setCurrentImageIndex(currentIndex);
   };
@@ -36,10 +36,10 @@ export default function BeachImageCarousel({ beach }: BeachImageCarouselProps) {
       position: "relative",
     },
     carouselImage: {
-      width: width - Spacing.lg * 4,
+      width: width - Spacing.lg * 2 - Spacing.md,
       height: 280,
       borderRadius: BorderRadius.lg,
-      marginHorizontal: Spacing.md,
+      marginRight: Spacing.md,
     },
 
     imageIndicatorContainer: {
@@ -73,12 +73,13 @@ export default function BeachImageCarousel({ beach }: BeachImageCarouselProps) {
             scrollEventThrottle={16}
             snapToInterval={
               beach.photo_urls.length > 1
-                ? width - Spacing.lg * 4 + Spacing.md * 2
+                ? width - Spacing.lg * 2 + Spacing.md
                 : undefined
             }
             decelerationRate="fast"
             contentContainerStyle={{
-              paddingHorizontal: beach.photo_urls.length > 1 ? Spacing.md : 0,
+              paddingLeft: beach.photo_urls.length > 1 ? Spacing.lg : 0,
+              paddingRight: beach.photo_urls.length > 1 ? Spacing.lg : 0,
             }}
             renderItem={({ item }) => (
               <Image
