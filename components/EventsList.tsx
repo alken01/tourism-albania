@@ -13,13 +13,9 @@ import EventGroup from "@/components/EventGroup";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Spacing } from "@/constants/GlobalStyles";
+import { GroupedEvents } from "@/hooks/useApi";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Category, Event } from "@/types/api";
-
-interface GroupedEvents {
-  municipality: string;
-  events: Event[];
-}
 
 interface EventsListProps {
   groupedEvents: GroupedEvents[];
@@ -27,9 +23,9 @@ interface EventsListProps {
   onEventPress: (event: Event) => void;
   onCategoryPress: (category: Category) => void;
   onRefresh: () => Promise<void>;
-  onLoadMore: () => void;
+  onLoadMore?: () => void;
   isLoading: boolean;
-  hasNextPage: boolean;
+  hasNextPage?: boolean;
 }
 
 export default function EventsList({
@@ -40,20 +36,24 @@ export default function EventsList({
   onRefresh,
   onLoadMore,
   isLoading,
-  hasNextPage,
+  hasNextPage = false,
 }: EventsListProps) {
   const { GlobalStyles, themedStyles, colors } = useThemedStyles();
 
   const renderEventGroup = ({ item }: { item: GroupedEvents }) => (
     <EventGroup
       municipality={item.municipality}
+      municipalityId={item.municipalityId}
       events={item.events}
+      displayEvents={item.displayEvents}
+      hasMore={item.hasMore}
+      totalEvents={item.totalEvents}
       onEventPress={onEventPress}
     />
   );
 
   const renderFooter = () => {
-    if (!isLoading || !hasNextPage) return null;
+    if (!isLoading || !hasNextPage || !onLoadMore) return null;
     return (
       <View
         style={[GlobalStyles.row, GlobalStyles.center, { padding: 20, gap: 8 }]}
@@ -96,7 +96,7 @@ export default function EventsList({
               type="subtitle"
               style={[GlobalStyles.sectionTitle, themedStyles.text]}
             >
-              Upcoming Events by Municipality
+              Events by Municipality (Ranked by Event Count)
             </ThemedText>
           </ThemedView>
         </View>

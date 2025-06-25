@@ -19,8 +19,18 @@ interface PaginatedApiState<T> extends ApiState<T> {
   totalPages: number;
 }
 
+interface GroupedEvents {
+  municipality: string;
+  municipalityId: number;
+  events: Event[];
+  totalEvents: number;
+  displayEvents: Event[]; // First 4 events for display
+  hasMore: boolean; // True if more than 4 events
+}
+
 // Cache configuration
 const CACHE_TTL = 3 * 60 * 60 * 1000; // 3 hours in milliseconds
+const DAILY_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 interface CacheEntry<T> {
   data: T;
@@ -30,6 +40,9 @@ interface CacheEntry<T> {
 
 // In-memory cache storage
 const apiCache = new Map<string, CacheEntry<any>>();
+
+// Daily cache for all events
+const DAILY_EVENTS_CACHE_KEY = "daily-all-events";
 
 // Cache utility functions
 function generateCacheKey(endpoint: string, params?: any): string {
@@ -50,13 +63,30 @@ function getCachedData<T>(cacheKey: string): T | null {
   return cached.data;
 }
 
-function setCachedData<T>(cacheKey: string, data: T): void {
+function setCachedData<T>(
+  cacheKey: string,
+  data: T,
+  ttl: number = CACHE_TTL
+): void {
   const now = Date.now();
   apiCache.set(cacheKey, {
     data,
     timestamp: now,
-    expiry: now + CACHE_TTL,
+    expiry: now + ttl,
   });
+}
+
+// Check if daily cache is still valid
+function isDailyCacheValid(): boolean {
+  const cached = apiCache.get(DAILY_EVENTS_CACHE_KEY);
+  if (!cached) return false;
+
+  const now = Date.now();
+  const cacheDate = new Date(cached.timestamp);
+  const nowDate = new Date(now);
+
+  // Check if it's the same day
+  return cacheDate.toDateString() === nowDate.toDateString();
 }
 
 // Clear expired cache entries periodically
@@ -121,6 +151,90 @@ function useApiCall<T>(
     ...state,
     refetch: () => fetchData(true), // Force refresh when manually refetching
   };
+}
+
+// Daily cached all events hook with municipality grouping
+export function useDailyAllEvents(): ApiState<GroupedEvents[]> & {
+  refetch: () => Promise<void>;
+} {
+  const [state, setState] = useState<ApiState<GroupedEvents[]>>({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
+  const fetchAndGroupEvents = useCallback(
+    async (forceRefresh: boolean = false) => {
+      // Check daily cache first
+      if (!forceRefresh && isDailyCacheValid()) {
+        const cachedData = getCachedData<Event[]>(DAILY_EVENTS_CACHE_KEY);
+        if (cachedData) {
+          const groupedEvents = groupEventsByMunicipality(cachedData);
+          setState({ data: groupedEvents, loading: false, error: null });
+          return;
+        }
+      }
+
+      setState((prev) => ({ ...prev, loading: true, error: null }));
+
+      try {
+        const allEvents = await apiService.getAllEvents();
+
+        // Cache for 24 hours (daily cache)
+        setCachedData(DAILY_EVENTS_CACHE_KEY, allEvents, DAILY_CACHE_TTL);
+
+        const groupedEvents = groupEventsByMunicipality(allEvents);
+        setState({ data: groupedEvents, loading: false, error: null });
+      } catch (error) {
+        setState({
+          data: null,
+          loading: false,
+          error:
+            error instanceof ApiError
+              ? error.message
+              : "Failed to fetch events",
+        });
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    fetchAndGroupEvents();
+  }, [fetchAndGroupEvents]);
+
+  return {
+    ...state,
+    refetch: () => fetchAndGroupEvents(true),
+  };
+}
+
+// Helper function to group and rank events by municipality
+function groupEventsByMunicipality(events: Event[]): GroupedEvents[] {
+  const groupedMap = new Map<string, Event[]>();
+
+  // Group events by municipality
+  events.forEach((event) => {
+    const municipalityName = event.municipality.name;
+    if (!groupedMap.has(municipalityName)) {
+      groupedMap.set(municipalityName, []);
+    }
+    groupedMap.get(municipalityName)!.push(event);
+  });
+
+  // Convert to array and sort by event count (most events first)
+  const groupedEvents: GroupedEvents[] = Array.from(groupedMap.entries())
+    .map(([municipality, events]) => ({
+      municipality,
+      municipalityId: events[0].municipality.id,
+      events,
+      totalEvents: events.length,
+      displayEvents: events.slice(0, 4), // Show only first 4 events
+      hasMore: events.length > 4,
+    }))
+    .sort((a, b) => b.totalEvents - a.totalEvents); // Sort by event count (descending)
+
+  return groupedEvents;
 }
 
 // Events hooks
@@ -295,3 +409,6 @@ export function getCacheStats(): { size: number; keys: string[] } {
     keys: Array.from(apiCache.keys()),
   };
 }
+
+// Export the GroupedEvents interface for use in components
+export type { GroupedEvents };

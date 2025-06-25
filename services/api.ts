@@ -77,6 +77,28 @@ export const apiService = {
     return fetchApi<EventsResponse>("/events", params);
   },
 
+  async getAllEvents(): Promise<Event[]> {
+    const allEvents: Event[] = [];
+    let currentPage = 1;
+    let hasMorePages = true;
+
+    while (hasMorePages) {
+      try {
+        const response = await this.getEvents({ page: currentPage });
+        allEvents.push(...response.events);
+
+        // Check if there are more pages
+        hasMorePages = response.current_page < response.total_pages;
+        currentPage++;
+      } catch (error) {
+        console.error(`Error fetching page ${currentPage}:`, error);
+        throw error;
+      }
+    }
+
+    return allEvents;
+  },
+
   async getFilteredEvents(
     params?: FilteredEventsQueryParams
   ): Promise<Event[]> {
