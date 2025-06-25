@@ -21,8 +21,11 @@ function BeachDetailSkeleton() {
       backgroundColor: colors.background,
     },
     imageSkeleton: {
-      height: 250,
+      height: 280,
       backgroundColor: colors.backgroundSecondary,
+      marginHorizontal: Spacing.lg,
+      marginTop: Spacing.lg,
+      borderRadius: BorderRadius.lg,
     },
     contentSkeleton: {
       padding: Spacing.lg,
@@ -46,7 +49,7 @@ function BeachDetailSkeleton() {
   return (
     <ThemedView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={[styles.skeletonBox, styles.imageSkeleton]} />
+        <View style={styles.imageSkeleton} />
         <View style={styles.contentSkeleton}>
           <View style={[styles.skeletonBox, styles.skeletonLarge]} />
           <View style={[styles.skeletonBox, styles.skeletonMedium]} />
@@ -165,6 +168,9 @@ export default function BeachDetailScreen() {
     contentContainer: {
       paddingBottom: Spacing.xxl * 2,
     },
+    sectionSpacer: {
+      height: Spacing.md,
+    },
   });
 
   return (
@@ -175,7 +181,9 @@ export default function BeachDetailScreen() {
         contentContainerStyle={styles.contentContainer}
       >
         <BeachImageCarousel beach={beach} />
+        <View style={styles.sectionSpacer} />
         <BeachInfoSection beach={beach} />
+        <View style={styles.sectionSpacer} />
         <NearbyPlacesAccordion nearbyPlaces={beach.nearby_places || []} />
       </ScrollView>
     </ThemedView>

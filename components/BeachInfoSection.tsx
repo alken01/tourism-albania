@@ -1,9 +1,18 @@
 import { ThemedText } from "@/components/ThemedText";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Beach } from "@/types/api";
+import { Info, MapPin } from "lucide-react-native";
 import React from "react";
-import { Linking, TouchableOpacity, View } from "react-native";
+import { Dimensions, Platform, StyleSheet, View } from "react-native";
+import MapView, {
+  Marker,
+  PROVIDER_DEFAULT,
+  PROVIDER_GOOGLE,
+} from "react-native-maps";
+
+const { width } = Dimensions.get("window");
 
 interface BeachInfoSectionProps {
   beach: Beach;
@@ -11,58 +20,197 @@ interface BeachInfoSectionProps {
 
 export default function BeachInfoSection({ beach }: BeachInfoSectionProps) {
   const getLocalizedField = useLocalizedField();
-  const { colors, shadows, Spacing, Typography, BorderRadius } =
-    useThemedStyles();
+  const { colors, Spacing, Typography, BorderRadius } = useThemedStyles();
 
   const getBeachDescription = () => {
     return getLocalizedField(beach, "description");
   };
 
-  const handleOpenMap = () => {
-    if (beach?.pin_location) {
-      Linking.openURL(beach.pin_location);
-    }
+  const beachLocation = {
+    latitude: parseFloat(beach.latitude),
+    longitude: parseFloat(beach.longitude),
   };
 
-  const styles = {
-    infoSection: {
-      padding: Spacing.xl,
-      backgroundColor: colors.background,
-    },
-    mapButton: {
-      flexDirection: "row" as const,
-      alignItems: "center" as const,
-      backgroundColor: colors.primary,
+  const styles = StyleSheet.create({
+    container: {
       paddingHorizontal: Spacing.lg,
-      paddingVertical: Spacing.md,
-      borderRadius: BorderRadius.lg,
-      alignSelf: "flex-start" as const,
-      marginBottom: Spacing.xl,
-      ...shadows.md,
+      gap: Spacing.md,
     },
-    mapButtonText: {
-      color: colors.textLight,
+    mapCard: {
+      marginBottom: Spacing.sm,
+      overflow: "hidden",
+    },
+    mapContainer: {
+      height: 200,
+      borderRadius: BorderRadius.lg,
+      overflow: "hidden",
+    },
+    map: {
+      ...StyleSheet.absoluteFillObject,
+    },
+    mapOverlay: {
+      position: "absolute",
+      top: Spacing.md,
+      left: Spacing.md,
+      backgroundColor: "rgba(255, 255, 255, 0.95)",
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.sm,
+      borderRadius: BorderRadius.full,
+      flexDirection: "row",
+      alignItems: "center",
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    mapOverlayText: {
       fontSize: Typography.sizes.sm,
-      fontWeight: Typography.weights.semibold,
+      fontWeight: Typography.weights.medium,
+      color: colors.text,
       marginLeft: Spacing.xs,
+    },
+    infoCard: {
+      marginBottom: Spacing.sm,
+    },
+    cardHeaderContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: Spacing.sm,
+    },
+    cardTitle: {
+      fontSize: Typography.sizes.lg,
+      fontWeight: Typography.weights.bold,
+      color: colors.text,
     },
     description: {
       fontSize: Typography.sizes.md,
       lineHeight: Typography.sizes.md * Typography.lineHeights.relaxed,
-      color: colors.text,
-      marginBottom: Spacing.xl,
+      color: colors.textSecondary,
     },
-  };
+    statsContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginTop: Spacing.lg,
+      paddingTop: Spacing.lg,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    statItem: {
+      alignItems: "center",
+      flex: 1,
+    },
+    statLabel: {
+      fontSize: Typography.sizes.xs,
+      color: colors.textSecondary,
+      textTransform: "uppercase",
+      fontWeight: Typography.weights.semibold,
+      marginBottom: Spacing.xs,
+    },
+    statValue: {
+      fontSize: Typography.sizes.sm,
+      color: colors.text,
+      fontWeight: Typography.weights.medium,
+    },
+  });
 
   return (
-    <View style={styles.infoSection}>
-      <TouchableOpacity style={styles.mapButton} onPress={handleOpenMap}>
-        <ThemedText style={styles.mapButtonText}>🗺️ View on Map</ThemedText>
-      </TouchableOpacity>
+    <View style={styles.container}>
+      {/* Map Card */}
+      <Card style={styles.mapCard}>
+        <CardContent style={{ padding: 0 }}>
+          <View style={styles.mapContainer}>
+            <MapView
+              style={styles.map}
+              provider={
+                Platform.OS === "ios" ? PROVIDER_DEFAULT : PROVIDER_GOOGLE
+              }
+              initialRegion={{
+                ...beachLocation,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}
+              showsUserLocation={true}
+              showsMyLocationButton={false}
+              scrollEnabled={true}
+              zoomEnabled={true}
+              pitchEnabled={false}
+              rotateEnabled={false}
+            >
+              <Marker
+                coordinate={beachLocation}
+                title={getLocalizedField(beach, "name")}
+                description={beach.municipality.name}
+              >
+                <View
+                  style={{
+                    backgroundColor: colors.primary,
+                    padding: 8,
+                    borderRadius: 20,
+                    borderWidth: 3,
+                    borderColor: "white",
+                  }}
+                >
+                  <MapPin size={16} color="white" />
+                </View>
+              </Marker>
+            </MapView>
 
-      <ThemedText style={styles.description}>
-        {getBeachDescription()}
-      </ThemedText>
+            <View style={styles.mapOverlay}>
+              <MapPin size={14} color={colors.primary} />
+              <ThemedText style={styles.mapOverlayText}>
+                {beach.municipality.name}
+              </ThemedText>
+            </View>
+          </View>
+        </CardContent>
+      </Card>
+
+      {/* Beach Information Card */}
+      <Card style={styles.infoCard}>
+        <CardHeader>
+          <View style={styles.cardHeaderContent}>
+            <Info size={20} color={colors.primary} />
+            <ThemedText style={styles.cardTitle}>About This Beach</ThemedText>
+          </View>
+        </CardHeader>
+        <CardContent>
+          <ThemedText style={styles.description}>
+            {getBeachDescription()}
+          </ThemedText>
+
+          {/* Beach Stats */}
+          <View style={styles.statsContainer}>
+            <View style={styles.statItem}>
+              <ThemedText style={styles.statLabel}>Type</ThemedText>
+              <ThemedText style={styles.statValue}>
+                {beach.is_public ? "Public" : "Private"}
+              </ThemedText>
+            </View>
+            <View style={styles.statItem}>
+              <ThemedText style={styles.statLabel}>Municipality</ThemedText>
+              <ThemedText style={styles.statValue}>
+                {beach.municipality.name}
+              </ThemedText>
+            </View>
+            {beach.nearby_places && (
+              <View style={styles.statItem}>
+                <ThemedText style={styles.statLabel}>Nearby</ThemedText>
+                <ThemedText style={styles.statValue}>
+                  {beach.nearby_places.reduce(
+                    (total, group) => total + group.places.length,
+                    0
+                  )}{" "}
+                  places
+                </ThemedText>
+              </View>
+            )}
+          </View>
+        </CardContent>
+      </Card>
     </View>
   );
 }
