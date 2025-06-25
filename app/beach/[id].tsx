@@ -1,14 +1,129 @@
 import BeachImageCarousel from "@/components/BeachImageCarousel";
 import BeachInfoSection from "@/components/BeachInfoSection";
-import NearbyPlacesSection from "@/components/NearbyPlacesSection";
+import NearbyPlacesAccordion from "@/components/NearbyPlacesAccordion";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useBeach } from "@/hooks/useApi";
 import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { useLocalSearchParams, useNavigation } from "expo-router";
+import { RefreshCw } from "lucide-react-native";
 import React, { useEffect } from "react";
-import { ActivityIndicator, ScrollView, TouchableOpacity } from "react-native";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+
+// Simple loading component
+function BeachDetailSkeleton() {
+  const { colors, Spacing, BorderRadius } = useThemedStyles();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    imageSkeleton: {
+      height: 250,
+      backgroundColor: colors.backgroundSecondary,
+    },
+    contentSkeleton: {
+      padding: Spacing.lg,
+    },
+    skeletonBox: {
+      backgroundColor: colors.backgroundSecondary,
+      borderRadius: BorderRadius.md,
+      marginBottom: Spacing.md,
+    },
+    skeletonLarge: {
+      height: 80,
+    },
+    skeletonMedium: {
+      height: 60,
+    },
+    skeletonSmall: {
+      height: 40,
+    },
+  });
+
+  return (
+    <ThemedView style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={[styles.skeletonBox, styles.imageSkeleton]} />
+        <View style={styles.contentSkeleton}>
+          <View style={[styles.skeletonBox, styles.skeletonLarge]} />
+          <View style={[styles.skeletonBox, styles.skeletonMedium]} />
+          <View style={[styles.skeletonBox, styles.skeletonLarge]} />
+        </View>
+      </ScrollView>
+    </ThemedView>
+  );
+}
+
+// Error component
+function BeachDetailError({
+  error,
+  onRetry,
+}: {
+  error: string;
+  onRetry: () => void;
+}) {
+  const { colors, Spacing, BorderRadius, Typography } = useThemedStyles();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    errorCard: {
+      backgroundColor: colors.backgroundSecondary,
+      margin: Spacing.lg,
+      padding: Spacing.xl,
+      borderRadius: BorderRadius.lg,
+      alignItems: "center",
+    },
+    errorTitle: {
+      fontSize: Typography.sizes.lg,
+      fontWeight: Typography.weights.bold,
+      color: colors.error,
+      marginBottom: Spacing.md,
+      textAlign: "center",
+    },
+    errorMessage: {
+      fontSize: Typography.sizes.md,
+      color: colors.textSecondary,
+      textAlign: "center",
+      marginBottom: Spacing.xl,
+    },
+    retryButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: Spacing.xl,
+      paddingVertical: Spacing.lg,
+      borderRadius: BorderRadius.md,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    retryButtonText: {
+      color: colors.textLight,
+      fontWeight: Typography.weights.semibold,
+      marginLeft: Spacing.sm,
+    },
+  });
+
+  return (
+    <ThemedView style={styles.container}>
+      <View style={styles.errorCard}>
+        <ThemedText style={styles.errorTitle}>
+          Oops! Something went wrong
+        </ThemedText>
+        <ThemedText style={styles.errorMessage}>
+          {error || "Beach not found"}
+        </ThemedText>
+        <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
+          <RefreshCw size={18} color={colors.textLight} />
+          <ThemedText style={styles.retryButtonText}>Try Again</ThemedText>
+        </TouchableOpacity>
+      </View>
+    </ThemedView>
+  );
+}
 
 export default function BeachDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -17,7 +132,7 @@ export default function BeachDetailScreen() {
 
   const { data: beach, loading, error, refetch } = useBeach(beachId);
   const getLocalizedField = useLocalizedField();
-  const { GlobalStyles, themedStyles, colors, Spacing } = useThemedStyles();
+  const { colors, Spacing } = useThemedStyles();
 
   const getBeachName = () => {
     return beach ? getLocalizedField(beach, "name") : "";
@@ -33,62 +148,35 @@ export default function BeachDetailScreen() {
   }, [beach, navigation]);
 
   if (loading) {
-    return (
-      <ThemedView
-        style={[GlobalStyles.loadingContainer, themedStyles.background]}
-      >
-        <ActivityIndicator size="large" color={colors.primary} />
-        <ThemedText
-          style={[GlobalStyles.loadingText, themedStyles.textSecondary]}
-        >
-          Loading beach details...
-        </ThemedText>
-      </ThemedView>
-    );
+    return <BeachDetailSkeleton />;
   }
 
   if (error || !beach) {
     return (
-      <ThemedView
-        style={[GlobalStyles.errorContainer, themedStyles.background]}
-      >
-        <ThemedText style={[GlobalStyles.errorText, themedStyles.errorText]}>
-          {error || "Beach not found"}
-        </ThemedText>
-        <TouchableOpacity
-          style={[GlobalStyles.button, { backgroundColor: colors.primary }]}
-          onPress={refetch}
-        >
-          <ThemedText
-            style={[GlobalStyles.buttonText, { color: colors.textLight }]}
-          >
-            Try Again
-          </ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
+      <BeachDetailError error={error || "Beach not found"} onRetry={refetch} />
     );
   }
 
-  const styles = {
+  const styles = StyleSheet.create({
     container: {
       flex: 1,
-      ...themedStyles.background,
+      backgroundColor: colors.background,
     },
-    scrollContent: {
+    contentContainer: {
       paddingBottom: Spacing.xxl * 2,
     },
-  };
+  });
 
   return (
     <ThemedView style={styles.container}>
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={styles.contentContainer}
       >
         <BeachImageCarousel beach={beach} />
         <BeachInfoSection beach={beach} />
-        <NearbyPlacesSection nearbyPlaces={beach.nearby_places || []} />
+        <NearbyPlacesAccordion nearbyPlaces={beach.nearby_places || []} />
       </ScrollView>
     </ThemedView>
   );
