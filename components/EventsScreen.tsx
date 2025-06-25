@@ -1,16 +1,31 @@
+import EventsFilter from "@/components/EventsFilter";
 import EventsList from "@/components/EventsList";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useCategories, useEvents } from "@/hooks/useApi";
+import {
+  useCategories,
+  useEvents,
+  useFilteredEvents,
+  useMunicipalities,
+} from "@/hooks/useApi";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Category, Event } from "@/types/api";
 import { router } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { ActivityIndicator } from "react-native";
+
+export interface GroupedEvents {
+  municipality: string;
+  events: Event[];
+}
 
 export default function EventsScreen() {
   const { GlobalStyles, themedStyles, colors } = useThemedStyles();
+  const [selectedMunicipality, setSelectedMunicipality] = useState<
+    number | null
+  >(null);
 
+  // Use filtered events if municipality is selected, otherwise use regular events
   const {
     data: events,
     loading: eventsLoading,
@@ -20,7 +35,30 @@ export default function EventsScreen() {
     hasNextPage,
   } = useEvents();
 
+  const {
+    data: filteredEvents,
+    loading: filteredEventsLoading,
+    error: filteredEventsError,
+    refetch: refetchFilteredEvents,
+  } = useFilteredEvents(
+    selectedMunicipality
+      ? {
+          municipality_id: selectedMunicipality,
+          audience: 0, // Default audience parameter as shown in the API
+        }
+      : undefined
+  );
+
   const { data: categories, refetch: refetchCategories } = useCategories();
+  const { data: municipalities, refetch: refetchMunicipalities } =
+    useMunicipalities();
+
+  // Use filtered events if municipality is selected, otherwise use regular events
+  const displayEvents = selectedMunicipality ? filteredEvents : events;
+  const isLoading = selectedMunicipality
+    ? filteredEventsLoading
+    : eventsLoading;
+  const error = selectedMunicipality ? filteredEventsError : eventsError;
 
   const handleEventPress = (event: Event) => {
     // Navigate to event detail page
@@ -32,18 +70,73 @@ export default function EventsScreen() {
     console.log("Navigate to category:", category.id);
   };
 
+  const handleMunicipalitySelect = (municipalityId: number | null) => {
+    setSelectedMunicipality(municipalityId);
+  };
+
   const handleRefresh = async () => {
-    await Promise.all([refetchEvents(), refetchCategories()]);
+    if (selectedMunicipality) {
+      await Promise.all([
+        refetchFilteredEvents(),
+        refetchCategories(),
+        refetchMunicipalities(),
+      ]);
+    } else {
+      await Promise.all([
+        refetchEvents(),
+        refetchCategories(),
+        refetchMunicipalities(),
+      ]);
+    }
   };
 
   const handleLoadMore = () => {
-    if (hasNextPage && !eventsLoading) {
+    // Load more only works for regular events (paginated), not filtered events
+    if (!selectedMunicipality && hasNextPage && !eventsLoading) {
       loadMoreEvents();
     }
   };
 
+  // Group events by municipality
+  const groupedEvents: GroupedEvents[] = React.useMemo(() => {
+    if (!displayEvents) return [];
+
+    // If a municipality is selected, don't group since all events are from the same municipality
+    if (selectedMunicipality) {
+      const municipalityName =
+        displayEvents[0]?.municipality?.name || "Selected Municipality";
+      return [
+        {
+          municipality: municipalityName,
+          events: displayEvents,
+        },
+      ];
+    }
+
+    const grouped = displayEvents.reduce((acc, event) => {
+      const municipalityName = event.municipality.name;
+
+      const existingGroup = acc.find(
+        (group) => group.municipality === municipalityName
+      );
+
+      if (existingGroup) {
+        existingGroup.events.push(event);
+      } else {
+        acc.push({
+          municipality: municipalityName,
+          events: [event],
+        });
+      }
+
+      return acc;
+    }, [] as GroupedEvents[]);
+
+    return grouped.sort((a, b) => a.municipality.localeCompare(b.municipality));
+  }, [displayEvents, selectedMunicipality]);
+
   // Loading state - only show when no data is available
-  if (eventsLoading && !events) {
+  if (isLoading && !displayEvents) {
     return (
       <ThemedView
         style={[GlobalStyles.loadingContainer, themedStyles.background]}
@@ -59,28 +152,37 @@ export default function EventsScreen() {
   }
 
   // Error state - only show when no data is available
-  if (eventsError && !events) {
+  if (error && !displayEvents) {
     return (
       <ThemedView
         style={[GlobalStyles.errorContainer, themedStyles.background]}
       >
         <ThemedText style={[GlobalStyles.errorText, themedStyles.errorText]}>
-          Error loading events: {eventsError}
+          Error loading events: {error}
         </ThemedText>
       </ThemedView>
     );
   }
 
   return (
-    <EventsList
-      events={events || []}
-      categories={categories || []}
-      onEventPress={handleEventPress}
-      onCategoryPress={handleCategoryPress}
-      onRefresh={handleRefresh}
-      onLoadMore={handleLoadMore}
-      isLoading={eventsLoading}
-      hasNextPage={hasNextPage}
-    />
+    <ThemedView style={[{ flex: 1 }, themedStyles.background]}>
+      {/* Municipality Filter */}
+      <EventsFilter
+        municipalities={municipalities || []}
+        selectedMunicipality={selectedMunicipality}
+        onMunicipalitySelect={handleMunicipalitySelect}
+      />
+
+      <EventsList
+        groupedEvents={groupedEvents}
+        categories={categories || []}
+        onEventPress={handleEventPress}
+        onCategoryPress={handleCategoryPress}
+        onRefresh={handleRefresh}
+        onLoadMore={handleLoadMore}
+        isLoading={isLoading}
+        hasNextPage={!selectedMunicipality && hasNextPage} // Disable load more for filtered events
+      />
+    </ThemedView>
   );
 }

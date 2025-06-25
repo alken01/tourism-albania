@@ -10,12 +10,17 @@ import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 interface EventCardProps {
   event: Event;
   onPress?: (event: Event) => void;
+  showLocation?: boolean;
 }
 
 const { width } = Dimensions.get("window");
-const CARD_WIDTH = width - 32; // Account for horizontal margins
+const CARD_WIDTH = width * 0.8; // Make cards smaller for horizontal scrolling
 
-export default function EventCard({ event, onPress }: EventCardProps) {
+export default function EventCard({
+  event,
+  onPress,
+  showLocation = true,
+}: EventCardProps) {
   const { themedStyles, colors, shadows, Spacing, Typography, BorderRadius } =
     useThemedStyles();
 
@@ -46,7 +51,7 @@ export default function EventCard({ event, onPress }: EventCardProps) {
   const cardStyles = {
     container: {
       width: CARD_WIDTH,
-      marginHorizontal: Spacing.lg,
+      marginHorizontal: Spacing.sm,
       marginVertical: Spacing.sm,
       borderRadius: BorderRadius.lg,
       overflow: "hidden" as const,
@@ -141,11 +146,13 @@ export default function EventCard({ event, onPress }: EventCardProps) {
             )}
           </View>
 
-          <View style={cardStyles.locationContainer}>
-            <ThemedText style={cardStyles.locationText}>
-              📍 {event.municipality.name}
-            </ThemedText>
-          </View>
+          {showLocation && (
+            <View style={cardStyles.locationContainer}>
+              <ThemedText style={cardStyles.locationText}>
+                📍 {event.municipality.name}
+              </ThemedText>
+            </View>
+          )}
         </View>
       </ThemedView>
     </TouchableOpacity>

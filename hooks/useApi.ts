@@ -1,5 +1,10 @@
 import { ApiError, apiService } from "@/services/api";
-import { BeachesQueryParams, Event, EventsQueryParams } from "@/types/api";
+import {
+  BeachesQueryParams,
+  Event,
+  EventsQueryParams,
+  FilteredEventsQueryParams,
+} from "@/types/api";
 import { useCallback, useEffect, useState } from "react";
 
 interface ApiState<T> {
@@ -201,13 +206,27 @@ export function useEvents(params?: EventsQueryParams) {
 
   return {
     ...state,
-    refetch: () => fetchEvents(1, false, true), // Force refresh when manually refetching
     loadMore,
+    refetch: () => fetchEvents(1, false, true),
   };
 }
 
+// Filtered Events hook
+export function useFilteredEvents(params?: FilteredEventsQueryParams) {
+  const cacheKey = params
+    ? generateCacheKey("filtered-events", params)
+    : "filtered-events";
+
+  return useApiCall(
+    () => apiService.getFilteredEvents(params),
+    [params],
+    cacheKey
+  );
+}
+
 export function useEvent(id: number) {
-  return useApiCall(() => apiService.getEventById(id), [id]);
+  const cacheKey = generateCacheKey("event", { id });
+  return useApiCall(() => apiService.getEventById(id), [id], cacheKey);
 }
 
 // Categories hooks

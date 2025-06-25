@@ -9,15 +9,20 @@ import {
 } from "react-native";
 
 import CategoriesSection from "@/components/CategoriesSection";
-import EventCard from "@/components/EventCard";
+import EventGroup from "@/components/EventGroup";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Spacing } from "@/constants/GlobalStyles";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Category, Event } from "@/types/api";
 
-interface EventsListProps {
+interface GroupedEvents {
+  municipality: string;
   events: Event[];
+}
+
+interface EventsListProps {
+  groupedEvents: GroupedEvents[];
   categories: Category[];
   onEventPress: (event: Event) => void;
   onCategoryPress: (category: Category) => void;
@@ -28,7 +33,7 @@ interface EventsListProps {
 }
 
 export default function EventsList({
-  events,
+  groupedEvents,
   categories,
   onEventPress,
   onCategoryPress,
@@ -39,8 +44,12 @@ export default function EventsList({
 }: EventsListProps) {
   const { GlobalStyles, themedStyles, colors } = useThemedStyles();
 
-  const renderEventItem = ({ item }: { item: Event }) => (
-    <EventCard event={item} onPress={onEventPress} />
+  const renderEventGroup = ({ item }: { item: GroupedEvents }) => (
+    <EventGroup
+      municipality={item.municipality}
+      events={item.events}
+      onEventPress={onEventPress}
+    />
   );
 
   const renderFooter = () => {
@@ -61,9 +70,9 @@ export default function EventsList({
     <FlatList
       style={[{ flex: 1 }, themedStyles.background]}
       contentInsetAdjustmentBehavior="automatic"
-      data={events}
-      renderItem={renderEventItem}
-      keyExtractor={(item) => item.id.toString()}
+      data={groupedEvents}
+      renderItem={renderEventGroup}
+      keyExtractor={(item) => item.municipality}
       refreshControl={
         <RefreshControl
           refreshing={isLoading}
@@ -87,7 +96,7 @@ export default function EventsList({
               type="subtitle"
               style={[GlobalStyles.sectionTitle, themedStyles.text]}
             >
-              Upcoming Events
+              Upcoming Events by Municipality
             </ThemedText>
           </ThemedView>
         </View>
@@ -99,7 +108,7 @@ export default function EventsList({
           </ThemedText>
         </ThemedView>
       )}
-      showsVerticalScrollIndicator={true}
+      showsVerticalScrollIndicator={false}
       contentContainerStyle={{
         paddingBottom: Platform.OS === "ios" ? Spacing.xxxl : Spacing.xxl, // Account for tab bar
       }}

@@ -104,6 +104,14 @@ export interface EventsQueryParams {
   to_date?: string;
 }
 
+export interface FilteredEventsQueryParams {
+  from_date?: string;
+  to_date?: string;
+  audience?: number;
+  municipality_id?: number;
+  category_id?: number;
+}
+
 export interface BeachesQueryParams {
   municipality_id?: number;
   is_public?: boolean;

@@ -6,6 +6,7 @@ import {
   Event,
   EventsQueryParams,
   EventsResponse,
+  FilteredEventsQueryParams,
   Municipality,
 } from "@/types/api";
 
@@ -76,6 +77,12 @@ export const apiService = {
     return fetchApi<EventsResponse>("/events", params);
   },
 
+  async getFilteredEvents(
+    params?: FilteredEventsQueryParams
+  ): Promise<Event[]> {
+    return fetchApi<Event[]>("/events/filter_events", params);
+  },
+
   async getEventById(id: number): Promise<Event> {
     return fetchApi<Event>(`/events/${id}`);
   },
@@ -120,6 +127,20 @@ export const apiService = {
     page: number = 1
   ): Promise<EventsResponse> {
     return this.getEvents({ municipality_id: municipalityId, page });
+  },
+
+  async getFilteredEventsByMunicipality(
+    municipalityId: number,
+    fromDate?: string,
+    toDate?: string,
+    audience?: number
+  ): Promise<Event[]> {
+    return this.getFilteredEvents({
+      municipality_id: municipalityId,
+      from_date: fromDate,
+      to_date: toDate,
+      audience,
+    });
   },
 
   async getPublicBeaches(): Promise<Beach[]> {
