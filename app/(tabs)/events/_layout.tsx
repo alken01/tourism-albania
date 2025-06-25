@@ -2,7 +2,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { Stack } from "expo-router";
 import React from "react";
 
-export default function BeachesLayout() {
+export default function EventsLayout() {
   const { t } = useLanguage();
 
   return (
@@ -11,6 +11,7 @@ export default function BeachesLayout() {
         name="index"
         options={{
           headerLargeTitle: true,
+          headerLargeTitleShadowVisible: false,
           title: t("events"),
           headerStyle: {
             backgroundColor: "transparent",

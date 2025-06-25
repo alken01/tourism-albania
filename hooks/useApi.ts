@@ -209,6 +209,109 @@ export function useDailyAllEvents(): ApiState<GroupedEvents[]> & {
   };
 }
 
+// Featured municipalities hook (top 5 municipalities by event count)
+export function useFeaturedMunicipalities(): ApiState<GroupedEvents[]> & {
+  refetch: () => Promise<void>;
+} {
+  const {
+    data: allGroupedEvents,
+    loading,
+    error,
+    refetch,
+  } = useDailyAllEvents();
+
+  const [featuredState, setFeaturedState] = useState<ApiState<GroupedEvents[]>>(
+    {
+      data: null,
+      loading: true,
+      error: null,
+    }
+  );
+
+  useEffect(() => {
+    if (loading) {
+      setFeaturedState((prev) => ({ ...prev, loading: true }));
+      return;
+    }
+
+    if (error) {
+      setFeaturedState({ data: null, loading: false, error });
+      return;
+    }
+
+    if (allGroupedEvents) {
+      const featuredMunicipalities = allGroupedEvents.slice(0, 5); // Top 5 municipalities
+      setFeaturedState({
+        data: featuredMunicipalities,
+        loading: false,
+        error: null,
+      });
+    }
+  }, [allGroupedEvents, loading, error]);
+
+  return {
+    ...featuredState,
+    refetch,
+  };
+}
+
+// Search municipalities hook - returns all municipalities that match search term
+export function useSearchMunicipalities(
+  searchTerm: string
+): ApiState<GroupedEvents[]> & { refetch: () => Promise<void> } {
+  const {
+    data: allGroupedEvents,
+    loading,
+    error,
+    refetch,
+  } = useDailyAllEvents();
+
+  const [searchState, setSearchState] = useState<ApiState<GroupedEvents[]>>({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
+  useEffect(() => {
+    if (loading) {
+      setSearchState((prev) => ({ ...prev, loading: true }));
+      return;
+    }
+
+    if (error) {
+      setSearchState({ data: null, loading: false, error });
+      return;
+    }
+
+    if (allGroupedEvents) {
+      if (!searchTerm.trim()) {
+        // If no search term, return all municipalities except the top 5 featured ones
+        const nonFeaturedMunicipalities = allGroupedEvents.slice(5);
+        setSearchState({
+          data: nonFeaturedMunicipalities,
+          loading: false,
+          error: null,
+        });
+      } else {
+        // Filter municipalities by search term
+        const filteredMunicipalities = allGroupedEvents.filter((group) =>
+          group.municipality.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setSearchState({
+          data: filteredMunicipalities,
+          loading: false,
+          error: null,
+        });
+      }
+    }
+  }, [allGroupedEvents, searchTerm, loading, error]);
+
+  return {
+    ...searchState,
+    refetch,
+  };
+}
+
 // Helper function to group and rank events by municipality
 function groupEventsByMunicipality(events: Event[]): GroupedEvents[] {
   const groupedMap = new Map<string, Event[]>();
@@ -393,7 +496,7 @@ export function useBeachesByMunicipality(municipalityId: number) {
   return useBeaches({ municipality_id: municipalityId });
 }
 
-// Cache management utilities
+// Cache management functions
 export function clearApiCache(): void {
   apiCache.clear();
 }
