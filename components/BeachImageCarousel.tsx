@@ -1,10 +1,7 @@
-import { ThemedText } from "@/components/ThemedText";
 import { Card, CardContent } from "@/components/ui/card";
-import { useLanguage, useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Beach } from "@/types/api";
 import { Image } from "expo-image";
-import { MapPin } from "lucide-react-native";
 import React from "react";
 import { Dimensions, FlatList, StyleSheet, View } from "react-native";
 
@@ -15,27 +12,13 @@ interface BeachImageCarouselProps {
 }
 
 export default function BeachImageCarousel({ beach }: BeachImageCarouselProps) {
-  const getLocalizedField = useLocalizedField();
-  const { t } = useLanguage();
-  const { colors, Spacing, Typography, BorderRadius } = useThemedStyles();
+  const { colors, Spacing, BorderRadius } = useThemedStyles();
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
-
-  const getBeachName = () => {
-    return getLocalizedField(beach, "name");
-  };
-
-  const getBeachType = () => {
-    if (beach.is_public) {
-      return t("public_beach");
-    } else {
-      return t("private_beach");
-    }
-  };
 
   const handleScroll = (event: any) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
-    const imageWidth = width - Spacing.lg * 2;
-    const currentIndex = Math.round(scrollPosition / imageWidth);
+    const imageWidth = width - Spacing.lg * 4; // Account for gaps
+    const currentIndex = Math.round(scrollPosition / (imageWidth + Spacing.md));
     setCurrentImageIndex(currentIndex);
   };
 
@@ -47,73 +30,18 @@ export default function BeachImageCarousel({ beach }: BeachImageCarouselProps) {
     cardContainer: {
       marginHorizontal: Spacing.lg,
       marginTop: Spacing.lg,
-      overflow: "hidden",
     },
     imageCarouselContainer: {
       height: 280,
       position: "relative",
-      borderRadius: BorderRadius.lg,
-      overflow: "hidden",
     },
     carouselImage: {
-      width: width - Spacing.lg * 2,
+      width: width - Spacing.lg * 4,
       height: 280,
+      borderRadius: BorderRadius.lg,
+      marginHorizontal: Spacing.md,
     },
-    imageOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0, 0, 0, 0.25)",
-    },
-    topRightContainer: {
-      position: "absolute",
-      top: Spacing.lg,
-      right: Spacing.lg,
-    },
-    typeBadge: {
-      paddingHorizontal: Spacing.md,
-      paddingVertical: Spacing.sm,
-      borderRadius: BorderRadius.full,
-      backgroundColor: "rgba(255, 255, 255, 0.9)",
-    },
-    typeText: {
-      color: colors.text,
-      fontSize: Typography.sizes.xs,
-      fontWeight: Typography.weights.bold,
-      textTransform: "uppercase",
-    },
-    bottomContainer: {
-      position: "absolute",
-      bottom: Spacing.lg,
-      left: Spacing.lg,
-      right: Spacing.lg,
-    },
-    beachTitle: {
-      fontSize: Typography.sizes.xl,
-      fontWeight: Typography.weights.bold,
-      color: colors.textLight,
-      marginBottom: Spacing.xs,
-      textShadowColor: "rgba(0, 0, 0, 0.8)",
-      textShadowOffset: { width: 0, height: 1 },
-      textShadowRadius: 4,
-    },
-    locationContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      backgroundColor: "rgba(0, 0, 0, 0.4)",
-      paddingHorizontal: Spacing.md,
-      paddingVertical: Spacing.sm,
-      borderRadius: BorderRadius.full,
-      alignSelf: "flex-start",
-    },
-    locationText: {
-      fontSize: Typography.sizes.sm,
-      color: colors.textLight,
-      fontWeight: Typography.weights.medium,
-      marginLeft: Spacing.xs,
-    },
+
     imageIndicatorContainer: {
       position: "absolute",
       bottom: Spacing.sm,
@@ -140,9 +68,18 @@ export default function BeachImageCarousel({ beach }: BeachImageCarouselProps) {
             data={beach.photo_urls}
             horizontal
             showsHorizontalScrollIndicator={false}
-            pagingEnabled
+            pagingEnabled={beach.photo_urls.length > 1}
             onScroll={handleScroll}
             scrollEventThrottle={16}
+            snapToInterval={
+              beach.photo_urls.length > 1
+                ? width - Spacing.lg * 4 + Spacing.md * 2
+                : undefined
+            }
+            decelerationRate="fast"
+            contentContainerStyle={{
+              paddingHorizontal: beach.photo_urls.length > 1 ? Spacing.md : 0,
+            }}
             renderItem={({ item }) => (
               <Image
                 source={{ uri: item }}
@@ -153,24 +90,6 @@ export default function BeachImageCarousel({ beach }: BeachImageCarouselProps) {
             )}
             keyExtractor={(item, index) => `image-${index}`}
           />
-
-          <View style={styles.imageOverlay} />
-
-          <View style={styles.topRightContainer}>
-            <View style={styles.typeBadge}>
-              <ThemedText style={styles.typeText}>{getBeachType()}</ThemedText>
-            </View>
-          </View>
-
-          <View style={styles.bottomContainer}>
-            <ThemedText style={styles.beachTitle}>{getBeachName()}</ThemedText>
-            <View style={styles.locationContainer}>
-              <MapPin size={14} color={colors.textLight} />
-              <ThemedText style={styles.locationText}>
-                {beach.municipality.name}
-              </ThemedText>
-            </View>
-          </View>
 
           {beach.photo_urls.length > 1 && (
             <View style={styles.imageIndicatorContainer}>

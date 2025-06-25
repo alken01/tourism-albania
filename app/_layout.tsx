@@ -41,7 +41,14 @@ export default function RootLayout() {
         >
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="beach/[id]" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="beach-detail"
+              options={{
+                headerShown: false,
+                presentation: "modal",
+                gestureEnabled: true,
+              }}
+            />
             <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
           </Stack>
           <StatusBar style="auto" />

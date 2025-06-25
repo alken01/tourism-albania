@@ -102,8 +102,8 @@ export default function BeachCard({
   }, [beach.photo_urls]);
 
   const handlePress = () => {
-    // Navigate to beach detail page
-    router.push(`/beach/${beach.id}`);
+    // Navigate to beach detail modal
+    router.push(`/beach-detail?id=${beach.id}`);
     // Also call the optional onPress callback
     onPress?.(beach);
   };

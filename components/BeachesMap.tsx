@@ -58,7 +58,7 @@ export default function BeachesMap({
   }, [focusLatitude, focusLongitude, beaches]);
 
   const handleMarkerPress = (beach: Beach) => {
-    router.push(`/beach/${beach.id}`);
+    router.push(`/beach-detail?id=${beach.id}`);
     onBeachPress?.(beach);
   };
 

@@ -6,10 +6,16 @@ import { ThemedView } from "@/components/ThemedView";
 import { useBeach } from "@/hooks/useApi";
 import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
-import { useLocalSearchParams, useNavigation } from "expo-router";
-import { RefreshCw } from "lucide-react-native";
-import React, { useEffect } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { RefreshCw, X } from "lucide-react-native";
+import React from "react";
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 // Simple loading component
 function BeachDetailSkeleton() {
@@ -128,35 +134,38 @@ function BeachDetailError({
   );
 }
 
-export default function BeachDetailScreen() {
+export default function BeachDetailModal() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const beachId = parseInt(id || "0", 10);
-  const navigation = useNavigation();
 
   const { data: beach, loading, error, refetch } = useBeach(beachId);
   const getLocalizedField = useLocalizedField();
-  const { colors, Spacing } = useThemedStyles();
+  const { colors, Spacing, BorderRadius } = useThemedStyles();
 
   const getBeachName = () => {
     return beach ? getLocalizedField(beach, "name") : "";
   };
 
-  // Update navigation title when beach data is loaded
-  useEffect(() => {
-    if (beach) {
-      navigation.setOptions({
-        headerTitle: getBeachName(),
-      });
-    }
-  }, [beach, navigation]);
+  const handleClose = () => {
+    router.back();
+  };
 
   if (loading) {
-    return <BeachDetailSkeleton />;
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        <BeachDetailSkeleton />
+      </SafeAreaView>
+    );
   }
 
   if (error || !beach) {
     return (
-      <BeachDetailError error={error || "Beach not found"} onRetry={refetch} />
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        <BeachDetailError
+          error={error || "Beach not found"}
+          onRetry={refetch}
+        />
+      </SafeAreaView>
     );
   }
 
@@ -164,6 +173,35 @@ export default function BeachDetailScreen() {
     container: {
       flex: 1,
       backgroundColor: colors.background,
+    },
+    modalHeader: {
+      backgroundColor: colors.background,
+      paddingTop: Spacing.md,
+      paddingHorizontal: Spacing.lg,
+      paddingBottom: Spacing.sm,
+    },
+    handleBar: {
+      width: 40,
+      height: 4,
+      backgroundColor: colors.textSecondary,
+      borderRadius: 2,
+      alignSelf: "center",
+      marginBottom: Spacing.md,
+      opacity: 0.3,
+    },
+    headerContent: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    titleContainer: {
+      flex: 1,
+      marginRight: Spacing.md,
+    },
+    closeButton: {
+      backgroundColor: colors.backgroundSecondary,
+      borderRadius: BorderRadius.full,
+      padding: Spacing.sm,
     },
     contentContainer: {
       paddingBottom: Spacing.xxl * 2,
@@ -174,7 +212,28 @@ export default function BeachDetailScreen() {
   });
 
   return (
-    <ThemedView style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.modalHeader}>
+        <View style={styles.handleBar} />
+        <View style={styles.headerContent}>
+          <View style={styles.titleContainer}>
+            <ThemedText type="title" numberOfLines={1}>
+              {getBeachName()}
+            </ThemedText>
+            <ThemedText type="default" style={{ color: colors.textSecondary }}>
+              {beach.municipality.name}
+            </ThemedText>
+          </View>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={handleClose}
+            activeOpacity={0.7}
+          >
+            <X size={20} color={colors.text} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
@@ -186,6 +245,6 @@ export default function BeachDetailScreen() {
         <View style={styles.sectionSpacer} />
         <NearbyPlacesAccordion nearbyPlaces={beach.nearby_places || []} />
       </ScrollView>
-    </ThemedView>
+    </SafeAreaView>
   );
 }
