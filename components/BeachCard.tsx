@@ -1,12 +1,13 @@
 import BeachMapButton from "@/components/BeachMapButton";
 import { ThemedText } from "@/components/ThemedText";
-import { Spacing } from "@/constants/GlobalStyles";
+import { Card, CardContent } from "@/components/ui/card";
+import { BorderWidth, Spacing } from "@/constants/GlobalStyles";
 import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Beach } from "@/types/api";
 import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
+import { MapPin } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -27,7 +28,7 @@ interface BeachCardProps {
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - Spacing.md) / 1.7;
-const CARD_HEIGHT = 300;
+const IMAGE_HEIGHT = 200;
 const AUTO_SLIDE_INTERVAL = 5000; // 5 seconds (slower)
 const FADE_DURATION = 800; // Fade animation duration
 
@@ -172,7 +173,12 @@ export default function BeachCard({
 
   const getBeachName = () => {
     const name = beach.name_en;
-    return name.replace(/beach|beach of/gi, "").trim();
+    const cleanName = name.replace(/beach|beach of/gi, "").trim();
+    // Convert to title case
+    return cleanName.replace(
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    );
   };
 
   const getBeachDescription = () => {
@@ -184,22 +190,26 @@ export default function BeachCard({
 
   const hasMultipleImages = beach.photo_urls && beach.photo_urls.length > 1;
 
-  const cardStyles = {
+  const styles = {
     container: {
       width: CARD_WIDTH,
       marginHorizontal: Spacing.sm,
       marginTop: Spacing.md,
-      borderRadius: BorderRadius.xxl,
-      overflow: "hidden" as const,
+      borderWidth: BorderWidth.xs,
+      borderColor: colors.border,
+      borderRadius: BorderRadius.lg,
     },
     imageContainer: {
       position: "relative" as const,
       width: "100%" as const,
-      height: CARD_HEIGHT,
+      height: IMAGE_HEIGHT,
+      borderTopLeftRadius: BorderRadius.lg,
+      borderTopRightRadius: BorderRadius.lg,
+      overflow: "hidden" as const,
     },
     carouselContainer: {
       width: "100%" as const,
-      height: CARD_HEIGHT,
+      height: IMAGE_HEIGHT,
     },
     imageStack: {
       position: "absolute" as const,
@@ -210,103 +220,86 @@ export default function BeachCard({
     },
     image: {
       width: CARD_WIDTH,
-      height: CARD_HEIGHT,
+      height: IMAGE_HEIGHT,
     },
     animatedImage: {
       position: "absolute" as const,
       top: 0,
       left: 0,
       width: CARD_WIDTH,
-      height: CARD_HEIGHT,
+      height: IMAGE_HEIGHT,
     },
     placeholderImage: {
       width: CARD_WIDTH,
-      height: CARD_HEIGHT,
+      height: IMAGE_HEIGHT,
       backgroundColor: colors.primary,
       justifyContent: "center" as const,
       alignItems: "center" as const,
     },
     placeholderText: {
-      fontSize: 48,
-    },
-    // Edge blur effects
-    leftBlur: {
-      position: "absolute" as const,
-      left: 0,
-      top: 0,
-      bottom: 0,
-      width: 30,
-      zIndex: 5,
-    },
-    rightBlur: {
-      position: "absolute" as const,
-      right: 0,
-      top: 0,
-      bottom: 0,
-      width: 30,
-      zIndex: 5,
+      fontSize: 32,
+      color: colors.textLight,
     },
     // Pagination dots
     paginationContainer: {
       position: "absolute" as const,
-      top: Spacing.lg,
-      left: Spacing.lg,
+      bottom: Spacing.sm,
+      alignSelf: "center" as const,
       flexDirection: "row" as const,
       zIndex: 10,
     },
     paginationDot: {
-      width: Spacing.sm,
-      height: Spacing.sm,
-      borderRadius: BorderRadius.sm,
-      marginHorizontal: Spacing.xs,
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      marginHorizontal: 2,
       backgroundColor: "rgba(255, 255, 255, 0.5)",
     },
     paginationDotActive: {
       backgroundColor: "rgba(255, 255, 255, 0.9)",
-      transform: [{ scale: 1.2 }],
     },
-    // Linear gradient overlay
-    gradientOverlay: {
+    // Map button
+    mapButtonContainer: {
       position: "absolute" as const,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      height: "70%" as const,
+      top: Spacing.sm,
+      right: Spacing.sm,
+      zIndex: 10,
     },
-    contentOverlay: {
-      position: "absolute" as const,
-      bottom: 0,
-      left: 0,
-      right: 0,
+    // Content section
+    contentSection: {
       padding: Spacing.md,
-      paddingTop: Spacing.lg,
     },
     titleContainer: {
       marginBottom: Spacing.xs,
     },
-    locationContainer: {
+    title: {
+      fontSize: Typography.sizes.md,
+      fontWeight: Typography.weights.bold,
+      color: colors.text,
       marginBottom: Spacing.xs,
     },
+    locationContainer: {
+      flexDirection: "row" as const,
+      alignItems: "center" as const,
+      marginBottom: Spacing.sm,
+    },
     locationText: {
-      color: "#FFFFFF",
       fontSize: Typography.sizes.xs,
-      fontWeight: Typography.weights.medium as any,
-      opacity: 0.95,
+      color: colors.textSecondary,
+      marginLeft: Spacing.xs,
     },
     description: {
-      color: "#FFFFFF",
-      fontSize: Typography.sizes.xs,
-      fontWeight: Typography.weights.light as any,
-      lineHeight: Typography.sizes.md,
-      opacity: 0.9,
+      fontSize: Typography.sizes.sm,
+      color: colors.textSecondary,
+      lineHeight: Typography.sizes.sm * Typography.lineHeights.normal,
     },
   };
 
   const renderImageCarousel = () => {
     if (!beach.photo_urls || beach.photo_urls.length === 0) {
       return (
-        <View style={cardStyles.placeholderImage}>
-          <Text style={cardStyles.placeholderText}>🏖️</Text>
+        <View style={styles.placeholderImage}>
+          <Text style={styles.placeholderText}>🏖️</Text>
         </View>
       );
     }
@@ -316,7 +309,7 @@ export default function BeachCard({
       return (
         <Image
           source={{ uri: beach.photo_urls[0] }}
-          style={cardStyles.image}
+          style={styles.image}
           contentFit="cover"
           transition={200}
         />
@@ -325,14 +318,14 @@ export default function BeachCard({
 
     // Multiple images - render stacked carousel with fade animations
     return (
-      <View style={cardStyles.carouselContainer}>
+      <View style={styles.carouselContainer}>
         {/* Stacked images with fade animations */}
-        <View style={cardStyles.imageStack}>
+        <View style={styles.imageStack}>
           {beach.photo_urls.map((photoUrl, index) => (
             <Animated.View
               key={index}
               style={[
-                cardStyles.animatedImage,
+                styles.animatedImage,
                 {
                   opacity:
                     fadeAnimsRef.current[index] ||
@@ -342,7 +335,7 @@ export default function BeachCard({
             >
               <Image
                 source={{ uri: photoUrl }}
-                style={cardStyles.image}
+                style={styles.image}
                 contentFit="cover"
                 transition={200}
               />
@@ -365,26 +358,10 @@ export default function BeachCard({
           {beach.photo_urls.map((_, index) => (
             <View
               key={index}
-              style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}
+              style={{ width: CARD_WIDTH, height: IMAGE_HEIGHT }}
             />
           ))}
         </ScrollView>
-
-        {/* Edge blur effects */}
-        <LinearGradient
-          colors={["rgba(0,0,0,0.1)", "transparent"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={cardStyles.leftBlur}
-          pointerEvents="none"
-        />
-        <LinearGradient
-          colors={["transparent", "rgba(0,0,0,0.1)"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={cardStyles.rightBlur}
-          pointerEvents="none"
-        />
       </View>
     );
   };
@@ -393,26 +370,13 @@ export default function BeachCard({
     if (!hasMultipleImages) return null;
 
     return (
-      <View style={cardStyles.paginationContainer}>
+      <View style={styles.paginationContainer}>
         {beach.photo_urls?.map((_, index) => (
-          <Animated.View
+          <View
             key={index}
             style={[
-              cardStyles.paginationDot,
-              index === currentImageIndex && cardStyles.paginationDotActive,
-              {
-                opacity: fadeAnimsRef.current[index]
-                  ? Animated.multiply(
-                      fadeAnimsRef.current[index],
-                      0.5
-                    ).interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0.5, 1],
-                    })
-                  : index === currentImageIndex
-                  ? 1
-                  : 0.5,
-              },
+              styles.paginationDot,
+              index === currentImageIndex && styles.paginationDotActive,
             ]}
           />
         ))}
@@ -422,59 +386,42 @@ export default function BeachCard({
 
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
-      <View style={cardStyles.container}>
-        <View style={cardStyles.imageContainer}>
-          {renderImageCarousel()}
+      <Card style={styles.container}>
+        <CardContent style={{ padding: 0 }}>
+          {/* Image Section */}
+          <View style={styles.imageContainer}>
+            {renderImageCarousel()}
 
-          <LinearGradient
-            colors={["transparent", "rgba(0,0,0,0.0)", "rgba(0,0,0,1)"]}
-            locations={[0, 0.0, 1]}
-            style={cardStyles.gradientOverlay}
-          />
+            {/* Pagination dots */}
+            {renderPaginationDots()}
 
-          {/* Pagination dots positioned at top left */}
-          {renderPaginationDots()}
-
-          {/* Map button positioned at top right */}
-          <View
-            style={{
-              position: "absolute",
-              top: Spacing.sm,
-              right: Spacing.sm,
-              zIndex: 10,
-            }}
-          >
-            <BeachMapButton beach={beach} />
+            {/* Map button */}
+            <View style={styles.mapButtonContainer}>
+              <BeachMapButton beach={beach} />
+            </View>
           </View>
 
-          <View style={cardStyles.contentOverlay}>
-            <View style={cardStyles.titleContainer}>
-              <ThemedText type="subtitle" style={{ color: colors.textLight }}>
-                {getBeachName()}
-              </ThemedText>
+          {/* Content Section */}
+          <View style={styles.contentSection}>
+            <View style={styles.titleContainer}>
+              <ThemedText style={styles.title}>{getBeachName()}</ThemedText>
             </View>
 
             {showLocation && (
-              <View style={cardStyles.locationContainer}>
-                <ThemedText style={cardStyles.locationText}>
-                  📍 {beach.municipality.name}
+              <View style={styles.locationContainer}>
+                <MapPin size={12} color={colors.textSecondary} />
+                <ThemedText style={styles.locationText}>
+                  {beach.municipality.name}
                 </ThemedText>
               </View>
             )}
 
-            <ThemedText
-              type="defaultLight"
-              style={{
-                color: colors.textLight,
-                lineHeight: Typography.sizes.sm * Typography.lineHeights.normal,
-              }}
-              numberOfLines={3}
-            >
+            <ThemedText style={styles.description} numberOfLines={3}>
               {getBeachDescription()}
             </ThemedText>
           </View>
-        </View>
-      </View>
+        </CardContent>
+      </Card>
     </TouchableOpacity>
   );
 }

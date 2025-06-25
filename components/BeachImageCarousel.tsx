@@ -15,10 +15,16 @@ export default function BeachImageCarousel({ beach }: BeachImageCarouselProps) {
   const { colors, Spacing, BorderRadius } = useThemedStyles();
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 
+  // Calculate dimensions for proper snapping
+  const cardMargin = Spacing.lg * 2; // left + right margins
+  const containerPadding = Spacing.lg * 2; // left + right padding
+  const imageGap = Spacing.md;
+  const imageWidth = width - cardMargin - containerPadding;
+  const snapInterval = imageWidth + imageGap;
+
   const handleScroll = (event: any) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
-    const imageWidth = width - Spacing.lg * 2; // Account for container margins
-    const currentIndex = Math.round(scrollPosition / (imageWidth + Spacing.md));
+    const currentIndex = Math.round(scrollPosition / snapInterval);
     setCurrentImageIndex(currentIndex);
   };
 
@@ -32,16 +38,18 @@ export default function BeachImageCarousel({ beach }: BeachImageCarouselProps) {
       marginTop: Spacing.lg,
     },
     imageCarouselContainer: {
-      height: 280,
+      height: 240,
       position: "relative",
     },
     carouselImage: {
-      width: width - Spacing.lg * 2 - Spacing.md,
-      height: 280,
+      width: imageWidth,
+      height: 240,
       borderRadius: BorderRadius.lg,
-      marginRight: Spacing.md,
+      marginRight: imageGap,
     },
-
+    lastImage: {
+      marginRight: 0, // Remove margin from last image
+    },
     imageIndicatorContainer: {
       position: "absolute",
       bottom: Spacing.sm,
@@ -68,23 +76,22 @@ export default function BeachImageCarousel({ beach }: BeachImageCarouselProps) {
             data={beach.photo_urls}
             horizontal
             showsHorizontalScrollIndicator={false}
-            pagingEnabled={beach.photo_urls.length > 1}
+            pagingEnabled={false} // Disable default paging for custom snap
             onScroll={handleScroll}
             scrollEventThrottle={16}
-            snapToInterval={
-              beach.photo_urls.length > 1
-                ? width - Spacing.lg * 2 + Spacing.md
-                : undefined
-            }
+            snapToInterval={snapInterval}
+            snapToAlignment="start"
             decelerationRate="fast"
             contentContainerStyle={{
-              paddingLeft: beach.photo_urls.length > 1 ? Spacing.lg : 0,
-              paddingRight: beach.photo_urls.length > 1 ? Spacing.lg : 0,
+              paddingHorizontal: Spacing.lg,
             }}
-            renderItem={({ item }) => (
+            renderItem={({ item, index }) => (
               <Image
                 source={{ uri: item }}
-                style={styles.carouselImage}
+                style={[
+                  styles.carouselImage,
+                  index === beach.photo_urls.length - 1 && styles.lastImage,
+                ]}
                 contentFit="cover"
                 transition={200}
               />
