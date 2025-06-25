@@ -1,13 +1,7 @@
-import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { Colors } from "@/constants/Colors";
-import {
-  BorderRadius,
-  BorderWidth,
-  Spacing,
-  Typography,
-} from "@/constants/GlobalStyles";
+import { Text } from "@/components/ui/text";
+import { BorderRadius, BorderWidth, Spacing } from "@/constants/GlobalStyles";
 import { useCurrency } from "@/hooks/useCurrency";
 import { Language, useLanguage } from "@/hooks/useLanguage";
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -18,7 +12,6 @@ import {
   Linking,
   RefreshControl,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -46,6 +39,11 @@ export default function InfoScreen() {
   const currency = useCurrency();
   const tintColor = useThemeColor({}, "tint");
   const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const cardColor = useThemeColor(
+    { light: "#ffffff", dark: "#1c1c1e" },
+    "background"
+  );
   const insets = useSafeAreaInsets();
 
   const handleCall = (number: string) => {
@@ -90,43 +88,49 @@ export default function InfoScreen() {
   ];
 
   const renderLanguageSection = () => (
-    <View style={styles.section}>
-      <ThemedText type="title" style={styles.sectionTitle}>
-        {t("language_settings")}
-      </ThemedText>
+    <View style={[styles.card, { backgroundColor: cardColor }]}>
+      <View style={styles.cardHeader}>
+        <Text variant="title" className="mb-1">
+          {t("language_settings")}
+        </Text>
+      </View>
+
       <View style={styles.languageContainer}>
         <TouchableOpacity
           style={[
             styles.languageButton,
-            { borderColor: tintColor },
-            language === "en" && { backgroundColor: tintColor },
+            {
+              borderColor: language === "en" ? tintColor : tintColor + "30",
+              backgroundColor: language === "en" ? tintColor : "transparent",
+            },
           ]}
           onPress={() => handleLanguageChange("en")}
         >
           <Text
-            style={[
-              styles.languageButtonText,
-              { color: language === "en" ? "#fff" : textColor },
-            ]}
+            variant="default"
+            className="font-semibold"
+            style={{ color: language === "en" ? "#fff" : textColor }}
           >
-            English
+            🇺🇸 EN
           </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={[
             styles.languageButton,
-            { borderColor: tintColor },
-            language === "sq" && { backgroundColor: tintColor },
+            {
+              borderColor: language === "sq" ? tintColor : tintColor + "30",
+              backgroundColor: language === "sq" ? tintColor : "transparent",
+            },
           ]}
           onPress={() => handleLanguageChange("sq")}
         >
           <Text
-            style={[
-              styles.languageButtonText,
-              { color: language === "sq" ? "#fff" : textColor },
-            ]}
+            variant="default"
+            className="font-semibold"
+            style={{ color: language === "sq" ? "#fff" : textColor }}
           >
-            Shqip
+            🇦🇱 SQ
           </Text>
         </TouchableOpacity>
       </View>
@@ -135,36 +139,72 @@ export default function InfoScreen() {
 
   const renderEmergencyItem = ({
     item,
+    index,
   }: {
     item: (typeof EMERGENCY_NUMBERS)[0];
+    index: number;
   }) => (
     <TouchableOpacity
-      style={[styles.emergencyItem, { borderBottomColor: tintColor + "20" }]}
+      style={[
+        styles.emergencyItem,
+        index === EMERGENCY_NUMBERS.length - 1 && { borderBottomWidth: 0 },
+      ]}
       onPress={() => handleCall(item.number)}
     >
       <View style={styles.emergencyLeft}>
-        <IconSymbol name={item.icon as any} size={24} color={tintColor} />
-        <ThemedText style={styles.emergencyTitle}>{t(item.key)}</ThemedText>
+        <View
+          style={[styles.iconContainer, { backgroundColor: tintColor + "15" }]}
+        >
+          <IconSymbol name={item.icon as any} size={20} color={tintColor} />
+        </View>
+        <View>
+          <Text variant="default" className="font-medium">
+            {t(item.key)}
+          </Text>
+          <Text variant="small" className="opacity-70">
+            Tap to call
+          </Text>
+        </View>
       </View>
       <View style={styles.emergencyRight}>
-        <ThemedText type="defaultSemiBold" style={styles.emergencyNumber}>
+        <Text
+          variant="large"
+          className="font-bold"
+          style={{ color: tintColor }}
+        >
           {item.number}
-        </ThemedText>
-        <IconSymbol name="phone.fill" size={16} color={tintColor} />
+        </Text>
+        <IconSymbol name="chevron.right" size={16} color={textColor + "60"} />
       </View>
     </TouchableOpacity>
   );
 
-  const renderCurrencyItem = ({ item }: { item: any }) => (
+  const renderCurrencyItem = ({
+    item,
+    index,
+  }: {
+    item: any;
+    index: number;
+  }) => (
     <View
-      style={[styles.currencyItem, { borderBottomColor: tintColor + "20" }]}
+      style={[
+        styles.currencyItem,
+        index === currency.getMainCurrencies().length - 1 && {
+          borderBottomWidth: 0,
+        },
+      ]}
     >
-      <ThemedText type="defaultSemiBold" style={styles.currencyCode}>
-        {item.code}
-      </ThemedText>
-      <ThemedText style={styles.currencyRate}>
-        1 {item.code} = {item.rate.toFixed(2)} ALL
-      </ThemedText>
+      <View>
+        <Text variant="default" className="font-semibold">
+          {item.code}
+        </Text>
+        <Text variant="small" className="opacity-70">
+          {item.name || item.code}
+        </Text>
+      </View>
+      <Text variant="default" className="font-medium">
+        {item.rate.toFixed(2)} ALL
+      </Text>
     </View>
   );
 
@@ -174,55 +214,75 @@ export default function InfoScreen() {
         return renderLanguageSection();
       case "emergency":
         return (
-          <View style={styles.section}>
-            <ThemedText type="title" style={styles.sectionTitle}>
-              {item.title}
-            </ThemedText>
-            <FlatList
-              data={item.data}
-              renderItem={renderEmergencyItem}
-              keyExtractor={(emergency) => emergency.key}
-              scrollEnabled={false}
-            />
+          <View style={[styles.card, { backgroundColor: cardColor }]}>
+            <View style={styles.cardHeader}>
+              <Text variant="title" className="mb-1">
+                {item.title}
+              </Text>
+              <Text variant="muted">Emergency contacts in Albania</Text>
+            </View>
+            <View>
+              {item.data?.map((emergency, index) => (
+                <View key={emergency.key}>
+                  {renderEmergencyItem({ item: emergency, index })}
+                </View>
+              ))}
+            </View>
           </View>
         );
       case "currency":
         return (
-          <View style={styles.section}>
-            <ThemedText type="title" style={styles.sectionTitle}>
-              {item.title}
-            </ThemedText>
+          <View style={[styles.card, { backgroundColor: cardColor }]}>
+            <View style={styles.cardHeader}>
+              <Text variant="title" className="mb-1">
+                {item.title}
+              </Text>
+              <Text variant="muted">
+                Current exchange rates to Albanian Lek
+              </Text>
+            </View>
             {currency.loading ? (
-              <ThemedText style={styles.loadingText}>{t("loading")}</ThemedText>
+              <View style={styles.loadingContainer}>
+                <Text variant="default" className="opacity-70">
+                  {t("loading")}...
+                </Text>
+              </View>
             ) : currency.error ? (
               <View style={styles.errorContainer}>
-                <ThemedText style={styles.errorText}>
+                <Text variant="error" className="text-center mb-3">
                   {currency.error}
-                </ThemedText>
+                </Text>
                 <TouchableOpacity
                   style={[styles.retryButton, { borderColor: tintColor }]}
                   onPress={currency.refetch}
                 >
-                  <ThemedText style={[styles.retryText, { color: tintColor }]}>
+                  <Text
+                    variant="default"
+                    className="font-semibold"
+                    style={{ color: tintColor }}
+                  >
                     {t("retry")}
-                  </ThemedText>
+                  </Text>
                 </TouchableOpacity>
               </View>
             ) : (
               <>
-                <FlatList
-                  data={item.data}
-                  renderItem={renderCurrencyItem}
-                  keyExtractor={(curr) => curr.code}
-                  scrollEnabled={false}
-                />
+                <View>
+                  {item.data?.map((curr, index) => (
+                    <View key={curr.code}>
+                      {renderCurrencyItem({ item: curr, index })}
+                    </View>
+                  ))}
+                </View>
                 {currency.data && (
-                  <ThemedText style={styles.updateText}>
-                    {t("last_updated").replace(
-                      "{date}",
-                      formatDate(currency.data.date)
-                    )}
-                  </ThemedText>
+                  <View style={styles.updateInfo}>
+                    <Text variant="caption" className="text-center opacity-70">
+                      {t("last_updated").replace(
+                        "{date}",
+                        formatDate(currency.data.date)
+                      )}
+                    </Text>
+                  </View>
                 )}
               </>
             )}
@@ -237,10 +297,7 @@ export default function InfoScreen() {
     <ThemedView style={styles.container}>
       <FlatList
         style={styles.scrollView}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingTop: insets.top },
-        ]}
+        contentContainerStyle={styles.scrollContent}
         data={sections}
         renderItem={renderSection}
         keyExtractor={(_, index) => index.toString()}
@@ -250,6 +307,11 @@ export default function InfoScreen() {
             onRefresh={currency.refetch}
           />
         }
+        showsVerticalScrollIndicator={false}
+        bounces={true}
+        scrollEventThrottle={16}
+        removeClippedSubviews={false}
+        contentInsetAdjustmentBehavior="automatic"
       />
     </ThemedView>
   );
@@ -261,96 +323,93 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    padding: Spacing.lg,
   },
   scrollContent: {
-    flexGrow: 1,
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.xxl,
   },
-  section: {
-    marginBottom: Spacing.xxl,
+  card: {
+    marginBottom: Spacing.xl,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.xl,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  sectionTitle: {
-    fontSize: Typography.sizes.sm,
-    fontWeight: Typography.weights.semibold,
+  cardHeader: {
+    marginBottom: Spacing.lg,
   },
   languageContainer: {
     flexDirection: "row",
-    gap: Spacing.lg,
+    gap: Spacing.md,
   },
   languageButton: {
     flex: 1,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.lg,
     borderRadius: BorderRadius.md,
-    borderWidth: BorderWidth.md,
+    borderWidth: 2,
     alignItems: "center",
-  },
-  languageButtonText: {
-    fontSize: Typography.sizes.md,
-    fontWeight: Typography.weights.semibold,
+    justifyContent: "center",
+    minHeight: 50,
   },
   emergencyItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: Spacing.md,
-    borderBottomWidth: BorderWidth.xs,
+    paddingVertical: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
   },
   emergencyLeft: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.md,
-  },
-  emergencyTitle: {
-    fontSize: Typography.sizes.md,
+    flex: 1,
   },
   emergencyRight: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.sm,
   },
-  emergencyNumber: {
-    fontSize: Typography.sizes.md,
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
   },
   currencyItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
+    paddingVertical: Spacing.lg,
     borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
   },
-  currencyCode: {
-    fontSize: Typography.sizes.md,
-  },
-  currencyRate: {
-    fontSize: Typography.sizes.md,
-  },
-  updateText: {
-    marginTop: Spacing.sm,
-    fontSize: Typography.sizes.sm,
-    opacity: 0.7,
-    textAlign: "center",
-  },
-  loadingText: {
-    textAlign: "center",
-    padding: Spacing.md,
+  loadingContainer: {
+    paddingVertical: Spacing.xl,
+    alignItems: "center",
   },
   errorContainer: {
     alignItems: "center",
-    padding: Spacing.md,
-  },
-  errorText: {
-    textAlign: "center",
-    marginBottom: 12,
-    color: Colors.light.error,
+    paddingVertical: Spacing.lg,
   },
   retryButton: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.md,
-    borderWidth: BorderWidth.xs,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    borderWidth: BorderWidth.md,
   },
-  retryText: {
-    fontWeight: Typography.weights.semibold,
+  updateInfo: {
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+    marginTop: Spacing.sm,
   },
 });

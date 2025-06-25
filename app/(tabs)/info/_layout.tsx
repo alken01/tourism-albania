@@ -11,12 +11,14 @@ export default function BeachesLayout() {
         name="index"
         options={{
           headerLargeTitle: true,
+          headerLargeTitleShadowVisible: false,
           title: t("info"),
           headerStyle: {
             backgroundColor: "transparent",
           },
           headerBlurEffect: "regular",
           headerShadowVisible: false,
+          headerTransparent: true,
         }}
       />
     </Stack>
