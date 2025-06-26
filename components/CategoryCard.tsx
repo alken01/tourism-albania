@@ -1,11 +1,11 @@
 import { ThemedText } from "@/components/ThemedText";
-import { BlurRadius, Spacing } from "@/constants/GlobalStyles";
+import { Card, CardContent } from "@/components/ui/card";
+import { BorderWidth } from "@/constants/GlobalStyles";
 import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Category } from "@/types/api";
-import { Image } from "expo-image";
 import React from "react";
-import { Dimensions, TouchableOpacity, View } from "react-native";
+import { Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
 
 interface CategoryCardProps {
   category: Category;
@@ -13,68 +13,92 @@ interface CategoryCardProps {
 }
 
 const { width } = Dimensions.get("window");
-const CARD_WIDTH = (width - Spacing.lg) / 3;
-const CARD_HEIGHT = CARD_WIDTH / 3;
+const CARD_WIDTH = width * 0.4;
+const CARD_HEIGHT = 100;
 
 export default function CategoryCard({ category, onPress }: CategoryCardProps) {
-  const { colors, Spacing, BorderRadius } = useThemedStyles();
+  const { colors, Spacing, BorderRadius, Typography } = useThemedStyles();
   const getLocalizedField = useLocalizedField();
 
   const getCategoryName = () => {
-    return getLocalizedField(category, "name");
+    const name = getLocalizedField(category, "name");
+    return name.replace(
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    );
   };
 
-  const cardStyles = {
-    container: {
+  const getCategoryIcon = () => {
+    const name = category.name_en.toLowerCase();
+    if (name.includes("art")) return "🎨";
+    if (name.includes("theater")) return "🎭";
+    if (name.includes("concerts")) return "🎤";
+    if (name.includes("sport")) return "⚽";
+    if (name.includes("local")) return "🎉";
+    if (name.includes("agrotourism")) return "🍽️";
+    if (name.includes("visual arts")) return "🖼️";
+    if (name.includes("folklore")) return "💃";
+    if (name.includes("cultural heritage")) return "🏛️";
+    if (name.includes("music festival")) return "🎵";
+    if (name.includes("conferences")) return "🎯";
+    if (name.includes("touristic trips")) return "🗺️";
+    return "📅";
+  };
+
+  const styles = StyleSheet.create({
+    cardContainer: {
       width: CARD_WIDTH,
       height: CARD_HEIGHT,
-      marginHorizontal: Spacing.sm,
-      borderRadius: BorderRadius.xl,
-      overflow: "hidden" as const,
-      position: "relative" as const,
-      backgroundColor: colors.background,
-      justifyContent: "center" as const,
-      alignItems: "center" as const,
+      marginRight: Spacing.md,
     },
-    image: {
-      position: "absolute" as const,
-      width: "100%" as const,
-      height: "100%" as const,
+    cardContent: {
+      padding: Spacing.lg,
+      height: "100%",
+      position: "relative",
+      borderWidth: BorderWidth.xs,
+      borderColor: colors.border,
+      borderRadius: BorderRadius.lg,
     },
-    blackOverlay: {
-      position: "absolute" as const,
-      width: "100%" as const,
-      height: "100%" as const,
-      backgroundColor: "rgba(0, 0, 0, 0.4)",
+    categoryNameContainer: {
+      position: "absolute",
+      bottom: Spacing.md,
+      left: Spacing.md,
+      right: Spacing.md,
     },
-    textContainer: {
-      zIndex: 1,
-      position: "relative" as const,
-      alignItems: "center" as const,
-      justifyContent: "center" as const,
+    categoryName: {
+      fontSize: Typography.sizes.md,
+      fontWeight: Typography.weights.semibold,
+      color: colors.text,
+      lineHeight: Typography.sizes.md * 1.1,
     },
-  };
+    emojiText: {
+      position: "absolute",
+      top: Spacing.md,
+      right: Spacing.md,
+      fontSize: Typography.sizes.massive,
+      lineHeight: Typography.sizes.massive / 2,
+    },
+  });
 
   return (
     <TouchableOpacity
-      style={cardStyles.container}
+      style={styles.cardContainer}
       onPress={() => onPress?.(category)}
+      activeOpacity={0.9}
     >
-      <Image
-        source={{ uri: category.photo }}
-        style={cardStyles.image}
-        contentFit="cover"
-        blurRadius={BlurRadius.sm}
-      />
-      <View style={cardStyles.blackOverlay} />
-      <View style={cardStyles.textContainer}>
-        <ThemedText
-          type="badgeNoBg"
-          style={{ color: colors.textLight, textAlign: "center" }}
-        >
-          {getCategoryName()}
-        </ThemedText>
-      </View>
+      <Card style={{ flex: 1 }}>
+        <CardContent style={styles.cardContent}>
+          <View style={styles.categoryNameContainer}>
+            <ThemedText style={styles.categoryName} numberOfLines={3}>
+              {getCategoryName()}
+            </ThemedText>
+          </View>
+          <ThemedText style={styles.emojiText}>
+            {"\n"} {/* emoji was getting cut off without this */}
+            {getCategoryIcon()}
+          </ThemedText>
+        </CardContent>
+      </Card>
     </TouchableOpacity>
   );
 }

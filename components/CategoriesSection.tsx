@@ -31,6 +31,7 @@ export default function CategoriesSection({
           flexDirection: "row",
           alignItems: "center",
           paddingHorizontal: Spacing.lg,
+          marginBottom: Spacing.md,
         }}
       >
         <ThemedText type="subtitle" style={GlobalStyles.sectionTitle}>
@@ -46,8 +47,7 @@ export default function CategoriesSection({
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
-          paddingLeft: Spacing.sm,
-          paddingRight: Spacing.sm,
+          paddingHorizontal: Spacing.lg,
         }}
       />
     </View>
