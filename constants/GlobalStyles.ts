@@ -279,7 +279,6 @@ export const GlobalStyles = StyleSheet.create({
   sectionTitle: {
     fontSize: Typography.sizes.xl,
     fontWeight: Typography.weights.semibold,
-    marginBottom: Spacing.md,
   },
   sectionSubtitle: {
     fontSize: Typography.sizes.lg,
@@ -397,7 +396,7 @@ export const GlobalStyles = StyleSheet.create({
 
   // Group styles (for grouped lists)
   groupContainer: {
-    marginBottom: Spacing.xxl,
+    marginBottom: Spacing.lg,
     // paddingHorizontal: Spacing.lg,
   },
   groupTitle: {

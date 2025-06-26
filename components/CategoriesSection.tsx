@@ -24,6 +24,27 @@ export default function CategoriesSection({
     return null;
   }
 
+  // Group categories into pairs for 2-row grid
+  const groupedCategories = [];
+  for (let i = 0; i < categories.length; i += 2) {
+    groupedCategories.push({
+      id: `group-${i}`,
+      top: categories[i],
+      bottom: categories[i + 1] || null,
+    });
+  }
+
+  const renderCategoryGroup = ({ item }: { item: any }) => (
+    <View style={{ marginRight: Spacing.md }}>
+      <CategoryCard category={item.top} onPress={onCategoryPress} />
+      {item.bottom && (
+        <View style={{ marginTop: Spacing.md }}>
+          <CategoryCard category={item.bottom} onPress={onCategoryPress} />
+        </View>
+      )}
+    </View>
+  );
+
   return (
     <View style={GlobalStyles.groupContainer}>
       <View
@@ -39,15 +60,13 @@ export default function CategoriesSection({
         </ThemedText>
       </View>
       <FlatList
-        data={categories}
-        renderItem={({ item }: { item: Category }) => (
-          <CategoryCard category={item} onPress={onCategoryPress} />
-        )}
-        keyExtractor={(category) => category.id.toString()}
+        data={groupedCategories}
+        renderItem={renderCategoryGroup}
+        keyExtractor={(item) => item.id}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
-          paddingHorizontal: Spacing.lg,
+          paddingLeft: Spacing.lg,
         }}
       />
     </View>

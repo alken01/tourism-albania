@@ -49,7 +49,6 @@ export default function CategoryCard({ category, onPress }: CategoryCardProps) {
     cardContainer: {
       width: CARD_WIDTH,
       height: CARD_HEIGHT,
-      marginRight: Spacing.md,
     },
     cardContent: {
       padding: Spacing.lg,
@@ -76,7 +75,7 @@ export default function CategoryCard({ category, onPress }: CategoryCardProps) {
       top: Spacing.md,
       right: Spacing.md,
       fontSize: Typography.sizes.massive,
-      lineHeight: Typography.sizes.massive / 2,
+      lineHeight: Typography.sizes.massive * 0.55,
     },
   });
 
