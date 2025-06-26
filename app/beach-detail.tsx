@@ -159,10 +159,6 @@ export default function BeachDetailModal() {
     return beach.is_public ? t("public_beach") : t("private_beach");
   };
 
-  const shouldShowTypeBadge = () => {
-    return beach && !beach.is_public; // Only show badge for private beaches
-  };
-
   const handleClose = () => {
     router.back();
   };
@@ -221,18 +217,6 @@ export default function BeachDetailModal() {
       flex: 1,
       marginRight: Spacing.sm,
     },
-    typeBadge: {
-      backgroundColor: colors.primary,
-      paddingHorizontal: Spacing.sm,
-      paddingVertical: Spacing.xs,
-      borderRadius: BorderRadius.full,
-    },
-    typeBadgeText: {
-      color: colors.textLight,
-      fontSize: Typography.sizes.xs,
-      fontWeight: Typography.weights.bold,
-      textTransform: "uppercase",
-    },
     closeButton: {
       backgroundColor: colors.backgroundSecondary,
       borderRadius: BorderRadius.full,
@@ -249,27 +233,16 @@ export default function BeachDetailModal() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.modalHeader}>
-        <View style={styles.handleBar} />
         <View style={styles.headerContent}>
           <View style={styles.titleContainer}>
             <View style={styles.titleText}>
               <ThemedText type="title" numberOfLines={1}>
                 {getBeachName()}
               </ThemedText>
-              <ThemedText
-                type="default"
-                style={{ color: colors.textSecondary }}
-              >
-                {beach.municipality.name}
+              <ThemedText style={{ color: colors.textSecondary }}>
+                {beach.municipality.name} • {getBeachType()}
               </ThemedText>
             </View>
-            {shouldShowTypeBadge() && (
-              <View style={styles.typeBadge}>
-                <ThemedText style={styles.typeBadgeText}>
-                  {getBeachType()}
-                </ThemedText>
-              </View>
-            )}
           </View>
           <TouchableOpacity
             style={styles.closeButton}

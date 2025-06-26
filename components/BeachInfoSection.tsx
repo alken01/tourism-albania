@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useLocalizedField } from "@/hooks/useLanguage";
 import { useThemedStyles } from "@/hooks/useThemedStyles";
 import { Beach } from "@/types/api";
-import { Info } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 
@@ -45,10 +44,7 @@ export default function BeachInfoSection({ beach }: BeachInfoSectionProps) {
       {/* Beach Information Card */}
       <Card>
         <CardHeader>
-          <View style={styles.cardHeaderContent}>
-            <Info size={20} color={colors.primary} />
-            <ThemedText style={styles.cardTitle}>About This Beach</ThemedText>
-          </View>
+          <ThemedText style={styles.cardTitle}>About This Beach</ThemedText>
         </CardHeader>
         <CardContent>
           <ThemedText style={styles.description}>
